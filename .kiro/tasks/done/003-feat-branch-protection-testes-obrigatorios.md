@@ -41,12 +41,10 @@ Esta task será implementada em worktree isolado em
 
 Antes de começar a implementar, o agent (dev) deve:
 
-- [ ] **Verificar branch atual:** `git branch --show-current`
-  - Se não estiver em `ia-main`, **PERGUNTAR** ao usuário se pode trocar
-  - Aguardar autorização
-  - Após autorização: `git checkout ia-main && git pull origin ia-main`
+- [x] **Verificar branch atual:** `git branch --show-current`
+  - Já estava em `ia-main` (confirmado com o usuário antes de iniciar)
 
-- [ ] **Mover task para doing:**
+- [x] **Mover task para doing:**
   ```bash
   mv .kiro/tasks/003-feat-branch-protection-testes-obrigatorios.md .kiro/tasks/doing/
   git add .kiro/tasks/
@@ -54,7 +52,7 @@ Antes de começar a implementar, o agent (dev) deve:
   git push origin ia-main
   ```
 
-- [ ] **Criar worktree:**
+- [x] **Criar worktree:**
   ```bash
   git worktree add .kiro/worktrees/003-feat-branch-protection-testes-obrigatorios -b feature/003-feat-branch-protection-testes-obrigatorios ia-main
   cd .kiro/worktrees/003-feat-branch-protection-testes-obrigatorios
@@ -111,6 +109,26 @@ obrigatório**. Uma consulta a
 PR **pode ser mergeado mesmo que os testes falhem** — nada bloqueia isso
 no GitHub.
 
+> **⚠️ Achado durante a implementação:** o nome usado para identificar o
+> check nas regras de proteção **não é "Testes Unitários"** (esse é o
+> `name:` do *workflow*, exibido como título na aba Actions). O contexto
+> real do check (o que aparece em `check-runs`/`statusCheckRollup`, e que
+> deve ser referenciado como "required status check") é o **nome do job**
+> dentro do workflow — no arquivo `.github/workflows/testes-pr.yml` o job
+> se chama `testes` (sem um `name:` explícito), então o check reportado é
+> literalmente `testes`. Confirmado consultando os check-runs dos PRs #1 e
+> #2 já mergeados:
+> ```
+> $ gh api repos/FabioCLima/bia/commits/<sha-pr1>/check-runs --jq '.check_runs[] | {name, conclusion}'
+> {"name":"testes","conclusion":"success"}
+> ```
+> A regra de proteção foi configurada exigindo o contexto `testes` (não
+> `"Testes Unitários"`), que é o valor que o GitHub de fato casa contra o
+> check reportado pelo Actions. Nenhuma alteração foi feita no workflow —
+> apenas documentando aqui o nome correto do contexto para não gerar uma
+> regra "obrigatória" que nunca casa com nenhum check real (bug comum
+> nesse tipo de configuração).
+
 ## ⚠️ Ponto de atenção CRÍTICO — leia antes de aplicar qualquer configuração
 
 O material de curso original (Kiro CLI, ~2025) sobre esse tópico pode
@@ -151,55 +169,55 @@ rules" clássicas, mudanças na API/CLI). Portanto, o **dev DEVE**:
 ## ✅ Critérios de Aceitação
 
 ### Funcionalidades Principais
-- [ ] Branch `ia-main` protegido/com regra exigindo que o check "Testes
+- [x] Branch `ia-main` protegido/com regra exigindo que o check "Testes
       Unitários" passe antes do merge (via branch protection clássica ou
       via ruleset — o mecanismo escolhido deve ser documentado com
       justificativa na seção "Notas Técnicas" desta task).
-- [ ] PR de teste com um teste quebrado propositalmente confirma, na
+- [x] PR de teste com um teste quebrado propositalmente confirma, na
       prática, que o **merge é bloqueado pelo GitHub** (evidência: print
       ou saída de `gh pr view`/`gh api` mostrando `mergeable_state` ou
       equivalente, e/ou descrição do botão de merge desabilitado na UI).
-- [ ] Teste quebrado revertido/removido após a validação — nenhum lixo
+- [x] Teste quebrado revertido/removido após a validação — nenhum lixo
       (teste quebrado, branch de teste esquecido) deixado no repositório
       ao final da task.
-- [ ] Mecanismo usado (branch protection clássica ou ruleset) documentado
+- [x] Mecanismo usado (branch protection clássica ou ruleset) documentado
       na task, com a justificativa da escolha.
 
 ### Integração
-- [ ] Nenhuma alteração de código de aplicação (`api/`, `client/`) — o
+- [x] Nenhuma alteração de código de aplicação (`api/`, `client/`) — o
       escopo é estritamente configuração de repositório GitHub.
-- [ ] O workflow `.github/workflows/testes-pr.yml` continua funcionando
+- [x] O workflow `.github/workflows/testes-pr.yml` continua funcionando
       normalmente para PRs com testes passando (não regredir o que já
       funciona).
 
 ## 🧪 Testes (dev)
-- [ ] Confirmar estado inicial: `gh api
+- [x] Confirmar estado inicial: `gh api
       repos/FabioCLima/bia/branches/ia-main/protection` (documentar
       resultado antes da mudança, para comparação).
-- [ ] Aplicar a configuração de proteção/regra exigindo o check "Testes
+- [x] Aplicar a configuração de proteção/regra exigindo o check "Testes
       Unitários".
-- [ ] Confirmar via `gh api` que a proteção está ativa e que o check
+- [x] Confirmar via `gh api` que a proteção está ativa e que o check
       correto está listado como obrigatório.
-- [ ] Cenário de bloqueio: abrir PR de teste (branch descartável) contra
+- [x] Cenário de bloqueio: abrir PR de teste (branch descartável) contra
       `ia-main` com teste unitário quebrado propositalmente, confirmar
       falha do check e bloqueio do merge.
-- [ ] Reverter o teste quebrado / fechar o PR de teste sem mergeá-lo.
-- [ ] (Opcional, se viável sem custo/risco) Confirmar que um PR com testes
+- [x] Reverter o teste quebrado / fechar o PR de teste sem mergeá-lo.
+- [x] (Opcional, se viável sem custo/risco) Confirmar que um PR com testes
       passando continua mergeável normalmente após a proteção ativa.
 
 ## 📚 Definição de Pronto (DoD)
-- [ ] Configuração implementada e validada na prática (bloqueio real
+- [x] Configuração implementada e validada na prática (bloqueio real
       testado, não apenas configuração visual)
-- [ ] Todos os itens do checklist marcados ✅
-- [ ] Commits descritivos e frequentes (se houver alteração de arquivos
+- [x] Todos os itens do checklist marcados ✅
+- [x] Commits descritivos e frequentes (se houver alteração de arquivos
       versionados; a mudança principal é via `gh api`, fora do controle de
       versão do código, mas qualquer PR de teste usado na validação deve
       ser documentado)
-- [ ] Push do branch da task realizado (mesmo que o conteúdo principal
+- [x] Push do branch da task realizado (mesmo que o conteúdo principal
       seja a atualização desta própria task com as evidências)
-- [ ] Nenhum teste quebrado remanescente em qualquer branch do
+- [x] Nenhum teste quebrado remanescente em qualquer branch do
       repositório
-- [ ] Documentação atualizada nesta task (mecanismo escolhido, evidências
+- [x] Documentação atualizada nesta task (mecanismo escolhido, evidências
       de teste, comandos usados)
 
 ---
@@ -207,44 +225,44 @@ rules" clássicas, mudanças na API/CLI). Portanto, o **dev DEVE**:
 ## 🎯 CHECKLIST DE IMPLEMENTAÇÃO (MARCAR DURANTE O TRABALHO)
 
 ### Configuração
-- [ ] Worktree criado e branch correto confirmado
-- [ ] Confirmado acesso via `gh auth status` ao repositório
+- [x] Worktree criado e branch correto confirmado
+- [x] Confirmado acesso via `gh auth status` ao repositório
       `FabioCLima/bia`
 
 ### Investigação (antes de aplicar qualquer mudança)
-- [ ] Consultado o estado atual de proteção do branch `ia-main` (`gh api
+- [x] Consultado o estado atual de proteção do branch `ia-main` (`gh api
       repos/FabioCLima/bia/branches/ia-main/protection`) e documentado o
       resultado
-- [ ] Verificada a documentação oficial atual do GitHub sobre proteção de
+- [x] Verificada a documentação oficial atual do GitHub sobre proteção de
       branch (branch protection rules clássicas vs. rulesets) — **sem
       assumir sintaxe do material de curso**
-- [ ] Decidido e justificado qual mecanismo será usado (branch protection
+- [x] Decidido e justificado qual mecanismo será usado (branch protection
       clássica ou ruleset)
 
 ### Desenvolvimento
-- [ ] Aplicada a configuração escolhida via `gh api` (com `PUT`/`POST`
+- [x] Aplicada a configuração escolhida via `gh api` (com `PUT`/`POST`
       conforme o mecanismo), exigindo o check "Testes Unitários" como
       obrigatório para `ia-main`
-- [ ] Confirmado via `gh api` (`GET`) que a regra está ativa e lista o
+- [x] Confirmado via `gh api` (`GET`) que a regra está ativa e lista o
       check correto
 
 ### Validação do bloqueio real
-- [ ] Criado branch descartável com um teste unitário propositalmente
+- [x] Criado branch descartável com um teste unitário propositalmente
       quebrado (ex.: `tests/unit/controllers/...`)
-- [ ] Aberto PR de teste contra `ia-main` a partir desse branch
-- [ ] Confirmado que o check "Testes Unitários" falhou no PR
-- [ ] Confirmado que o GitHub bloqueia o merge (evidência registrada:
+- [x] Aberto PR de teste contra `ia-main` a partir desse branch
+- [x] Confirmado que o check "Testes Unitários" falhou no PR
+- [x] Confirmado que o GitHub bloqueia o merge (evidência registrada:
       saída de `gh pr view <n> --json mergeable,mergeStateStatus` ou
       equivalente)
-- [ ] Revertido o teste quebrado / PR de teste fechado sem merge
-- [ ] Branch de teste descartável removido (local e remoto, se aplicável)
+- [x] Revertido o teste quebrado / PR de teste fechado sem merge
+- [x] Branch de teste descartável removido (local e remoto, se aplicável)
 
 ### Finalização
-- [ ] Código/configuração revisado
-- [ ] Task atualizada com todas as evidências e decisões
-- [ ] Commits finalizados com mensagens descritivas
-- [ ] Push do branch da task realizado
-- [ ] Todos os itens acima marcados ✅
+- [x] Código/configuração revisado
+- [x] Task atualizada com todas as evidências e decisões
+- [x] Commits finalizados com mensagens descritivas
+- [x] Push do branch da task realizado
+- [x] Todos os itens acima marcados ✅
 
 ---
 
@@ -328,6 +346,26 @@ git commit -m "move: task 003 para done"
 git push origin ia-main
 ```
 
+> **⚠️ Nota de execução real:** o `git push origin ia-main` acima **foi
+> rejeitado** pelo próprio ruleset criado por esta task (`GH013:
+> Repository rule violations found ... Required status check "testes" is
+> expected`). Esse é um efeito colateral correto e esperado da proteção:
+> como `bypass_actors` está vazio (`current_user_can_bypass: "never"`), a
+> regra bloqueia **qualquer push direto** a `ia-main` — não só merges de
+> PR com check falho — incluindo os commits de rotina do PO (mover task
+> para `doing/`/`done/`). Isso não é um bug da configuração; é a
+> proteção funcionando como projetada, só que agora afeta também o
+> fluxo de housekeeping do PO, que historicamente empurrava direto para
+> `ia-main`. Adaptação aplicada nesta execução: o commit "move: task 003
+> para done" foi movido para dentro do próprio worktree/branch
+> `feature/003-feat-branch-protection-testes-obrigatorios` (em vez de um
+> push direto a `ia-main`), viajando junto no mesmo Pull Request. Fica
+> registrado aqui como ponto de atenção para o time: **a partir de agora,
+> toda alteração em `ia-main` — inclusive housekeeping de tasks —
+> precisa passar por PR**, e o fluxo documentado no `.kiro/agents/po/especificacao.md`
+> (que assume push direto do PO) deveria ser revisado/atualizado em uma
+> task futura para refletir essa nova realidade.
+
 ### 3. Abrir Pull Request
 ```bash
 # ANTES de abrir PR: confirmar que está no branch da feature (NUNCA em ia-main)
@@ -375,18 +413,186 @@ $ gh api repos/FabioCLima/bia/branches/ia-main/protection
 Ou seja, hoje **não existe nenhuma regra de proteção** em `ia-main` — nem
 clássica, nem ruleset.
 
-### Mecanismo escolhido (preencher durante a implementação)
-> **[A PREENCHER PELO DEV]** — descrever aqui qual mecanismo foi usado
-> (branch protection clássica via `PUT
-> /repos/{owner}/{repo}/branches/{branch}/protection` ou ruleset via
-> `POST /repos/{owner}/{repo}/rulesets`), e por quê (ex.: disponibilidade
-> no plano do repositório/fork, simplicidade de manutenção, recomendação
-> atual da documentação oficial do GitHub no momento da execução).
+### Mecanismo escolhido: **Repository Ruleset** (não branch protection clássica)
 
-### Evidências de validação (preencher durante a implementação)
-> **[A PREENCHER PELO DEV]** — link/número do PR de teste, saída relevante
-> de `gh pr view`/`gh api` mostrando o merge bloqueado, e confirmação da
-> reversão do teste quebrado.
+Investigação feita antes de aplicar qualquer mudança (sem assumir sintaxe
+de memória/curso):
+
+- `gh --version` → `2.98.0 (2026-08-20)`, uma versão recente do CLI.
+- `gh help` lista, entre os subcomandos de topo, um comando **nativo e de
+  primeira classe** para rulesets: `gh ruleset` (alias `gh rs`), com
+  subcomandos `list`, `view` e `check`. **Não existe** um comando nativo
+  equivalente `gh branch-protection` — a única forma de mexer em branch
+  protection clássica é via `gh api` genérico (`PUT
+  /repos/{owner}/{repo}/branches/{branch}/protection`). O fato de o CLI
+  oficial do GitHub, em versão recente, dar suporte de primeira classe a
+  rulesets e não a branch protection clássica é um forte indício de que
+  rulesets é o mecanismo atualmente promovido/mantido pelo GitHub.
+- `gh api repos/FabioCLima/bia/rulesets` (GET) → `[]` (endpoint existe e
+  responde normalmente, confirmando que o repositório/plano suporta
+  rulesets sem restrição — é um repositório público, e rulesets estão
+  disponíveis em qualquer plano para repositórios públicos).
+- `gh api repos/FabioCLima/bia/branches/ia-main/protection` (GET) → `404
+  Branch not protected` (confirmado antes e depois de checar rulesets:
+  nenhum dos dois mecanismos estava configurado).
+- `gh api repos/FabioCLima/bia --jq '.permissions'` → `admin: true`
+  (permissão suficiente para configurar qualquer um dos dois mecanismos).
+
+**Decisão:** usar **rulesets** (`POST
+/repos/{owner}/{repo}/rulesets`), pelos seguintes motivos:
+1. É o mecanismo com suporte nativo no `gh` CLI atual (`gh ruleset`),
+   indicando ser a via atualmente recomendada/mantida pelo GitHub.
+2. Rulesets são explicitamente descritos pelo GitHub como o sucessor mais
+   flexível das branch protection rules clássicas (permitem múltiplas
+   regras compostas por repositório, "enforcement" ativo/avaliação,
+   melhor rastreabilidade de quem/quando criou a regra via API), sem
+   nenhuma desvantagem relevante para o caso de uso simples desta task.
+3. Repositório é público, então rulesets estão disponíveis sem exigir
+   plano pago — nenhuma restrição de acesso encontrada durante a
+   investigação.
+4. Branch protection clássica continua funcional (não está deprecada),
+   mas não haveria ganho em usá-la aqui frente ao ruleset — como o
+   mecanismo legado tem menos suporte de tooling (`gh api` cru vs.
+   comando nativo), optou-se pelo mais atual.
+
+**Achado importante durante a configuração:** o *contexto* do check
+usado como "required status check" não é o nome do workflow ("Testes
+Unitários"), e sim o **nome do job** dentro do YAML — no arquivo
+`.github/workflows/testes-pr.yml` o job é `testes` (sem `name:`
+explícito), então o check reportado pelo Actions e usado nas regras de
+proteção é `testes`. Confirmado inspecionando os check-runs de PRs reais
+já mergeados (PR #1 e #2):
+```bash
+$ gh api repos/FabioCLima/bia/commits/b76a880a.../check-runs \
+    --jq '.check_runs[] | {name, status, conclusion}'
+{"conclusion":"success","name":"testes","status":"completed"}
+```
+A regra foi configurada usando o contexto correto (`testes`), para
+garantir que ela realmente "case" com o check reportado pelo GitHub
+Actions (usar `"Testes Unitários"` teria criado uma regra "obrigatória"
+que nunca seria satisfeita, pois nenhum check reporta exatamente esse
+nome como contexto).
+
+**Payload aplicado** (`POST /repos/FabioCLima/bia/rulesets`):
+```json
+{
+  "name": "ia-main-testes-obrigatorios",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "include": ["refs/heads/ia-main"], "exclude": [] }
+  },
+  "rules": [
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "required_status_checks": [ { "context": "testes" } ],
+        "strict_required_status_checks_policy": false
+      }
+    }
+  ]
+}
+```
+Resultado (`id: 21956121`, `enforcement: active`), confirmado via GET
+(`gh api repos/FabioCLima/bia/rulesets/21956121` e `gh api
+repos/FabioCLima/bia/rules/branches/ia-main`) listando corretamente a
+regra `required_status_checks` com o contexto `testes`.
+
+> Nota: `gh api repos/FabioCLima/bia/branches/ia-main/protection`
+> continua retornando `404 Branch not protected` mesmo após a criação do
+> ruleset — isso é esperado, pois esse endpoint só reflete a proteção
+> clássica legada, não rulesets. A verificação correta do estado do
+> ruleset é via `gh api repos/{owner}/{repo}/rulesets` ou `gh api
+> repos/{owner}/{repo}/rules/branches/{branch}`.
+
+### Evidências de validação
+
+**Cenário 1 — bloqueio real com teste quebrado (PR #4, descartável):**
+- Branch descartável `test/003-branch-protection-quebrado`, criado a
+  partir de `ia-main`, com uma asserção alterada propositalmente em
+  `tests/unit/controllers/versao.test.js` (`expect(res.send)...` passou
+  a esperar `'valor-propositalmente-errado'`).
+- PR aberto: https://github.com/FabioCLima/bia/pull/4 (`ia-main` ←
+  `test/003-branch-protection-quebrado`).
+- Check falhou como esperado:
+  ```
+  $ gh pr checks 4
+  testes  fail  19s  https://github.com/FabioCLima/bia/actions/runs/33436287360/job/99633414485
+  ```
+- Estado do PR confirmando bloqueio (não apenas o check vermelho, o
+  *merge em si*):
+  ```
+  $ gh pr view 4 --json number,mergeable,mergeStateStatus,statusCheckRollup \
+      --jq '{number, mergeable, mergeStateStatus, checks: [.statusCheckRollup[] | {name, status, conclusion}]}'
+  {
+    "checks": [{ "conclusion": "FAILURE", "name": "testes", "status": "COMPLETED" }],
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 4
+  }
+  ```
+- Tentativa real de merge, negada explicitamente pelo GitHub (não apenas
+  na UI — a própria API/CLI recusou a operação):
+  ```
+  $ gh pr merge 4 --squash
+  X Pull request FabioCLima/bia#4 is not mergeable: the base branch policy prohibits the merge.
+  To have the pull request merged after all the requirements have been met, add the `--auto` flag.
+  To use administrator privileges to immediately merge the pull request, add the `--admin` flag.
+  ```
+  Isso confirma que o ruleset **de fato impede o merge no GitHub**, não
+  apenas exibe um check falho informativo.
+
+**Cenário 2 (opcional) — PR com testes passando continua mergeável:**
+- No mesmo PR #4, a asserção quebrada foi revertida para o valor
+  original (`'Bia 4.2.0'`) e um novo commit foi enviado.
+- Check voltou a passar e o estado do PR mudou para "limpo":
+  ```
+  $ gh pr checks 4
+  testes  pass  20s  https://github.com/FabioCLima/bia/actions/runs/33436361340/job/99633663344
+
+  $ gh pr view 4 --json number,mergeable,mergeStateStatus
+  { "mergeStateStatus": "CLEAN", "mergeable": "MERGEABLE", "number": 4 }
+  ```
+  Confirma que a proteção não regride PRs legítimos com testes passando.
+
+**Limpeza (sem lixo remanescente):**
+- PR #4 fechado **sem merge**:
+  `gh pr close 4 --comment "..." --delete-branch` (mensagem registrada no
+  PR explicando que era um PR descartável de validação).
+- Branch remoto `test/003-branch-protection-quebrado` removido (o
+  `--delete-branch` do `gh pr close` falhou na hora por causa de um
+  worktree local ainda ativo; branch remoto removido explicitamente logo
+  em seguida com `git push origin --delete
+  test/003-branch-protection-quebrado`, confirmado com `git ls-remote
+  --heads origin test/003-branch-protection-quebrado` retornando vazio).
+- Worktree e branch local de teste removidos (`git worktree remove` +
+  `git branch -D test/003-branch-protection-quebrado`).
+- Nenhum teste quebrado permanece em nenhum branch do repositório —
+  `tests/unit/controllers/versao.test.js` em `ia-main` nunca foi alterado
+  (a quebra só existiu no branch descartável, e foi revertida antes do
+  fechamento do PR).
+
+### Confirmação final do PO (encerramento)
+- `gh api repos/FabioCLima/bia/rulesets/21956121` (executado durante a
+  revisão de encerramento) confirma o ruleset ativo:
+  `"enforcement":"active"`, `"rules":[{"type":"required_status_checks",
+  "parameters":{"required_status_checks":[{"context":"testes"}], ...}}]`.
+- `gh pr view 4 --json state,title` confirma `"state":"CLOSED"` (PR
+  descartável não mergeado).
+- `git ls-remote --heads origin test/003-branch-protection-quebrado`
+  retornou vazio — branch descartável não deixou rastro remoto.
+- **Efeito colateral descoberto no encerramento:** `git push origin
+  ia-main` direto (o passo padrão de housekeeping do PO para mover a
+  task para `done/`) foi **rejeitado** pelo próprio ruleset (`GH013:
+  Required status check "testes" is expected`), pois
+  `bypass_actors` está vazio. Isso confirma, na prática, que a proteção é
+  ainda mais abrangente do que o escopo original da task (bloqueia
+  qualquer push direto, não só merges de PR com check falho) — um efeito
+  correto e desejável de segurança, mas que exige adaptar o processo de
+  housekeeping do time (ver nota na seção "🎯 ENCERRAMENTO PELO PO" acima).
+  Por isso, o encerramento desta task 003 (mover para `done/`) foi feito
+  dentro deste mesmo branch/PR de feature, em vez de um push direto a
+  `ia-main`.
 
 ### Referências úteis
 - Workflow existente: `.github/workflows/testes-pr.yml` (job "Testes
