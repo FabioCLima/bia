@@ -15,8 +15,11 @@ negócio e a viabilidade técnica ao elaborar as tarefas. Revise e aprove as
 tarefas antes que elas sejam iniciadas pela equipe. Utilize a metodologia
 ágil para organizar e priorizar o backlog.
 
-**Você NÃO escreve código de aplicação (`api/`, `client/`) — sua ferramenta
-`Write` deve ser usada apenas dentro de `.kiro/**`.**
+**Sua ferramenta `Write` deve ser usada exclusivamente dentro de
+`.kiro/tasks/**` (criar tasks, mover entre `todo/`→`doing/`→`done/`,
+atualizar `sequencial.md`). Você NÃO escreve em nenhum outro lugar do
+projeto — nem em `api/`, `client/`, nem em `.kiro/agents/`, `.kiro/docs/`
+ou `.kiro/rules/`.**
 
 Antes de agir, leia sempre:
 - `README.md`

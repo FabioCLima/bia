@@ -111,7 +111,55 @@ durante este mesmo módulo do curso (ver a correção em
 
 ---
 
-## 5. O que levar disso
+## 5. Testando a trava de permissão na prática, de verdade
+
+A linha "Kiro ganha" na tabela acima não é opinião — foi testada. Pedimos
+ao `po` do Kiro CLI pra apertar sua própria permissão de escrita, de
+`.kiro/**` pra só `.kiro/tasks/**`. Ele editou dois campos técnicos do
+`po.json` (`toolsSettings.write.allowedPaths` e `permissions.rules`) — uma
+trava de sistema, real.
+
+Tentamos replicar no `po.md` do Claude Code. O primeiro passo — reescrever
+a instrução de escopo no prompt — foi trivial, mas é soft (texto, não
+trava). Pra chegar numa trava de verdade, a hipótese era um hook
+`PreToolUse` em `Write|Edit` barrando qualquer caminho fora de
+`.kiro/tasks/**`.
+
+**Testamos empiricamente antes de implementar** (e não só assumimos que
+funcionaria): montamos um hook de diagnóstico que loga o payload real que o
+Claude Code manda pro hook antes de um `Write`. Resultado:
+
+```json
+{
+  "session_id": "...", "cwd": "...", "permission_mode": "acceptEdits",
+  "hook_event_name": "PreToolUse", "tool_name": "Write",
+  "tool_input": { "file_path": "...", "content": "..." }
+}
+```
+
+**Não existe campo `agent`/`subagent_name` nesse payload.** O hook enxerga
+qual ferramenta foi chamada e com quais argumentos — não enxerga **qual
+subagente** pediu. Ou seja: um hook de `Write|Edit` restringindo caminho
+pra `.kiro/tasks/**` bloquearia o `po` (que é o que queríamos) **e também
+o `dev`** tentando escrever em `api/`/`client/` — cego a quem chama, ele
+quebraria o time inteiro, não só apertaria um agente.
+
+Existe um caminho mais complexo (usar os eventos `SubagentStart`/
+`SubagentStop` pra gravar "qual subagente está ativo" num arquivo de
+estado, e o hook de escrita ler esse estado antes de decidir), mas não é
+trivial nem foi validado. Decisão tomada: aceitar a restrição soft como o
+teto real do Claude Code hoje pra esse caso de uso, e registrar isso como
+achado — não como suposição.
+
+**Atualização da linha da tabela, com essa evidência:** "Kiro ganha" na
+trava de permissão não é só porque o Kiro tem mais campos no JSON — é
+porque o modelo de permissão dele é **por agente**, enquanto o hook do
+Claude Code, pelo menos pelo payload observado, é **por ferramenta**,
+sem visibilidade de quem a está chamando.
+
+---
+
+## 6. O que levar disso
 
 O post no LinkedIn celebra o *processo* — agentes com escopo definido,
 modelo de feature-branch, PO treinado a especificar bem — não uma
@@ -128,4 +176,4 @@ pode mudar de nome de novo no futuro.
 - [Panorama: Agentes e Worktrees](./panorama-agentes-e-worktrees.md) — o processo original, Kiro CLI
 - [Migrar Time de Agentes para Claude Code](./migrar-time-agentes-para-claude-code.md) — tradução campo a campo
 - [Roteiro Prático com Claude Code](./roteiro-pratico-agentes-claude-code.md) — passo a passo + correções encontradas na prática
-- `.kiro/tasks/doing/001-feat-contador-tasks-pendentes-concluidas.md` — o ciclo completo citado na seção 3
+- `.kiro/tasks/done/001-feat-contador-tasks-pendentes-concluidas.md` — o ciclo completo citado na seção 3

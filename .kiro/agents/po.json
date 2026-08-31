@@ -24,7 +24,7 @@
   "toolsSettings": {
     "write": {
       "allowedPaths": [
-        ".kiro/**"
+        ".kiro/tasks/**"
       ]
     },
     "shell": {
@@ -97,7 +97,7 @@
       {
         "capability": "fs_write",
         "match": [
-          ".kiro/**"
+          ".kiro/tasks/**"
         ],
         "effect": "allow"
       },
