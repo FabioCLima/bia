@@ -162,23 +162,39 @@ lista.
 - [ ] Notificar o **qa** para validação via Playwright
 
 ### Validação (qa)
-- [ ] Abrir a Home via Playwright e confirmar que o contador aparece com
+- [x] Abrir a Home via Playwright e confirmar que o contador aparece com
       a contagem correta ao carregar a página
-- [ ] Criar uma nova task via UI e validar que "pendentes" incrementa
-- [ ] Marcar uma task como concluída via UI e validar que o contador
+- [x] Criar uma nova task via UI e validar que "pendentes" incrementa
+- [x] Marcar uma task como concluída via UI e validar que o contador
       atualiza ("pendentes" decrementa, "concluídas" incrementa)
-- [ ] Desmarcar a task concluída e validar que o contador volta ao estado
+- [x] Desmarcar a task concluída e validar que o contador volta ao estado
       anterior
-- [ ] Remover uma task (pendente e concluída, em execuções separadas) e
+- [x] Remover uma task (pendente e concluída, em execuções separadas) e
       validar que o contador correspondente decrementa
-- [ ] Validar comportamento com lista vazia (sem tasks)
-- [ ] Registrar evidências (prints/logs do Playwright) e notificar o PO
+- [x] Validar comportamento com lista vazia (sem tasks)
+- [x] Registrar evidências (prints/logs do Playwright) e notificar o PO
       com o resultado da validação
 
+**Nota (qa):** Primeira rodada encontrou `GET /api/tarefas` retornando
+500 (`relation "Tarefas" does not exist"`) por migrações ausentes no
+banco do worktree — não era bug desta task (client-only, `api/` intacto,
+confirmado byte-a-byte igual a `ia-main`). Após a correção das
+migrações, **revalidado integralmente contra API/banco reais (sem
+mock)**: todos os 7 cenários acima confirmados via chamadas reais
+`GET/POST/DELETE` (200), toggle de conclusão confirmado client-only (sem
+chamada à API), banco limpo ao final (`GET /api/tarefas` → `[]`).
+Evidências: `mobile-counter.png`, `desktop-counter.png`,
+`dark-counter.png` (raiz do repo) e log de console
+`.playwright-mcp/console-2026-08-31T13-26-01-544Z.log`.
+
 ### Finalização (qa)
-- [ ] Todos os itens acima marcados ✅
-- [ ] Notificar o PO com o resultado da validação (aprovado ou apontando
+- [x] Todos os itens acima marcados ✅
+- [x] Notificar o PO com o resultado da validação (aprovado ou apontando
       ajustes necessários para o dev)
+
+**Resultado:** ✅ **Aprovado em QA** — validado ponta a ponta com API e
+banco reais (revalidação sem mock), pronto para revisão de encerramento
+pelo PO.
 
 ---
 
