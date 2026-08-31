@@ -103,20 +103,23 @@ o processo do container ainda existe.
       → `Bia 4.2.0`.
 
 ### Consultivo (devops, antes do fechamento pelo PO)
-- [ ] O **devops** confirma, via `aws-mcp` (somente leitura), se a Task
-      Definition / serviço ECS de produção (`service-bia` /
-      `service-bia-alb`, conforme `.kiro/rules/infraestrutura.md`) já
-      possui um `healthCheck` configurado no container.
-- [ ] Caso exista healthcheck em produção, o devops compara os parâmetros
-      (`interval`, `timeout`, `retries`, `startPeriod`/`start_period`,
-      comando) com os propostos nesta task e registra na task se fazem
-      sentido (compatíveis) ou se sugere algum ajuste — **sem aplicar
-      nenhuma mudança**, apenas registrando a recomendação para o dev
-      avaliar antes do fechamento.
-- [ ] Caso NÃO exista healthcheck configurado no ECS, o devops registra
-      esse achado (é uma informação relevante para um backlog futuro de
-      alinhar prod ↔ local, mas não bloqueia o fechamento desta task, que
-      é sobre o ambiente local).
+- [x] O **devops** confirmou, via `aws-mcp` (somente leitura), que o
+      serviço ECS ativo em produção é `service-bia` (sem ALB —
+      `loadBalancers: []`, `launchType: EC2`, cluster `cluster-bia`),
+      rodando `task-def-bia:2`. O container `bia` dessa Task Definition
+      **não possui `healthCheck` configurado** (campo ausente no
+      `DescribeTaskDefinition`).
+- [x] N/A — não há healthcheck em produção para comparar parâmetros.
+- [x] Achado registrado: ECS de produção (`task-def-bia`) não tem
+      `healthCheck` no container nem health check de ALB (não há ALB).
+      Recomendação de backlog futuro (não bloqueia esta task): caso o
+      time queira alinhar prod ↔ local, os valores já usados no
+      `compose.yml` (`interval: 10s`, `timeout: 5s`, `retries: 3`,
+      `start_period: 5s`) são compatíveis com os limites aceitos pelo
+      ECS `healthCheck` (interval 5–300s, timeout 2–60s, retries 1–10,
+      startPeriod 0–300s), adaptando apenas o formato do `test` para
+      `CMD-SHELL` (ex.: `["CMD-SHELL", "curl -f
+      http://localhost:8080/api/versao || exit 1"]`).
 
 ## 🧪 Testes (qa)
 - [x] **Cenário 1 — Healthy:** Subir o ambiente
@@ -150,17 +153,17 @@ o processo do container ainda existe.
         depois dela, sem qualquer degradação.
 
 ## 📚 Definição de Pronto (DoD)
-- [ ] Código implementado e testado (bloco `healthcheck` ativo em
+- [x] Código implementado e testado (bloco `healthcheck` ativo em
       `compose.yml`)
-- [ ] Todos os itens do checklist marcados ✅
-- [ ] Commits descritivos e frequentes
-- [ ] Push do branch realizado
-- [ ] Rebuild dos containers realizado (`docker compose down` → `build`
+- [x] Todos os itens do checklist marcados ✅
+- [x] Commits descritivos e frequentes
+- [x] Push do branch realizado
+- [x] Rebuild dos containers realizado (`docker compose down` → `build`
       → `up`) e `/api/versao` respondendo, conforme
       `.kiro/agents/dev/instrucoes.md`
 - [x] QA validou os dois cenários (healthy e caminho de falha) e
       registrou o resultado observado
-- [ ] Devops registrou a comparação com o ECS de produção (achado +
+- [x] Devops registrou a comparação com o ECS de produção (achado +
       recomendação), de forma somente leitura
 
 ---
@@ -231,24 +234,21 @@ o processo do container ainda existe.
 > registrar como item de backlog futuro.
 
 ### Consulta (devops — somente leitura, antes do fechamento)
-- [ ] Consultar via `aws-mcp` a Task Definition/serviço ECS de produção
-      referente ao projeto BIA (ver nomes em
-      `.kiro/rules/infraestrutura.md`) e verificar se há `healthCheck`
-      configurado no container
-- [ ] Se existir, comparar `interval`/`timeout`/`retries`/`startPeriod`
-      com os valores implementados nesta task e registrar na task se são
-      compatíveis/fazem sentido, ou se recomenda algum ajuste
-- [ ] Se não existir, registrar esse achado como observação (sem
-      bloquear a task)
-- [ ] Notificar o **PO** com o resultado da consulta, para fechamento da
-      task
+- [x] Consultado via `aws-mcp`: cluster `cluster-bia`, serviço
+      `service-bia` (sem ALB), task definition `task-def-bia:2`.
+      Container `bia` **sem** `healthCheck` configurado.
+- [x] N/A — não há healthcheck em produção para comparar.
+- [x] Achado registrado como observação de backlog (não bloqueia): ECS
+      sem healthcheck nativo; sugestão de parâmetros compatíveis
+      documentada acima, para avaliação futura do time (fora do escopo
+      desta task).
+- [x] PO notificado.
 
 ### Finalização
 - [x] Código revisado
 - [x] Commits finalizados com mensagens descritivas
 - [x] Push do branch realizado
-- [ ] Todos os itens acima marcados ✅ (pendente: validação qa e consulta
-      devops)
+- [x] Todos os itens acima marcados ✅
 
 ---
 
