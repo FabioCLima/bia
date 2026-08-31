@@ -31,12 +31,12 @@ Esta task será implementada em worktree isolado em
 
 Antes de começar a implementar, o agent (dev) deve:
 
-- [ ] **Verificar branch atual:** `git branch --show-current`
+- [x] **Verificar branch atual:** `git branch --show-current`
   - Se não estiver em `ia-main`, **PERGUNTAR** ao usuário se pode trocar
   - Aguardar autorização
   - Após autorização: `git checkout ia-main && git pull origin ia-main`
 
-- [ ] **Mover task para doing:**
+- [x] **Mover task para doing:**
   ```bash
   mv .kiro/tasks/002-feat-healthcheck-container-server.md .kiro/tasks/doing/
   git add .kiro/tasks/
@@ -44,7 +44,7 @@ Antes de começar a implementar, o agent (dev) deve:
   git push origin ia-main
   ```
 
-- [ ] **Criar worktree:**
+- [x] **Criar worktree:**
   ```bash
   git worktree add .kiro/worktrees/002-feat-healthcheck-container-server -b feature/002-feat-healthcheck-container-server ia-main
   cd .kiro/worktrees/002-feat-healthcheck-container-server
@@ -73,26 +73,34 @@ o processo do container ainda existe.
 ## ✅ Critérios de Aceitação
 
 ### Funcionalidades Principais
-- [ ] O bloco `healthcheck` do serviço `server` em `compose.yml` está
+- [x] O bloco `healthcheck` do serviço `server` em `compose.yml` está
       **ativo** (não comentado), usando `curl -f` contra
       `http://localhost:8080/api/versao` (porta interna do container,
       conforme `EXPOSE 8080` no `Dockerfile`).
-- [ ] Os parâmetros de `interval`, `timeout`, `retries` e `start_period`
+- [x] Os parâmetros de `interval`, `timeout`, `retries` e `start_period`
       estão definidos com valores adequados para um ambiente local de
       estudo (sugestão de partida, já presente comentada no arquivo:
       `interval: 10s`, `timeout: 5s`, `retries: 3`, `start_period: 5s`) —
       o dev pode ajustar esses valores se, na prática, o app demorar mais
       para subir, desde que justifique a mudança.
-- [ ] Ao subir o ambiente (`docker compose up`), o container `server`
+      **Resultado:** valores comentados mantidos sem alteração — na
+      prática o app ficou `healthy` no primeiro ciclo (~10s), então não
+      houve necessidade de ajuste.
+- [x] Ao subir o ambiente (`docker compose up`), o container `server`
       atinge o status **healthy** em `docker ps` dentro de um tempo
       razoável após o start.
+      **Evidência:** `docker ps` → `bia   Up 15 seconds (healthy)`, e
+      `docker inspect --format='{{json .State.Health}}' bia` → primeiro
+      ciclo já com `"Status":"healthy"`.
 
 ### Integração
-- [ ] Nenhuma alteração em `Dockerfile`, `api/` ou `client/` — mudança
-      restrita a `compose.yml`.
-- [ ] `/api/versao` continua respondendo normalmente após a mudança
+- [x] Nenhuma alteração em `Dockerfile`, `api/` ou `client/` — mudança
+      restrita a `compose.yml`. Confirmado via `git diff compose.yml`
+      (único arquivo modificado, apenas o bloco `healthcheck`).
+- [x] `/api/versao` continua respondendo normalmente após a mudança
       (checagem padrão de qualquer alteração de infraestrutura local do
-      projeto).
+      projeto). Confirmado: `curl -s http://localhost:3001/api/versao`
+      → `Bia 4.2.0`.
 
 ### Consultivo (devops, antes do fechamento pelo PO)
 - [ ] O **devops** confirma, via `aws-mcp` (somente leitura), se a Task
@@ -147,25 +155,44 @@ o processo do container ainda existe.
 ## 🎯 CHECKLIST DE IMPLEMENTAÇÃO (MARCAR DURANTE O TRABALHO)
 
 ### Configuração
-- [ ] Worktree criado e branch correto confirmado
-- [ ] Ambiente de desenvolvimento configurado no worktree
+- [x] Worktree criado e branch correto confirmado
+- [x] Ambiente de desenvolvimento configurado no worktree
 
 ### Desenvolvimento (dev)
-- [ ] Descomentar o bloco `healthcheck` do serviço `server` em
+- [x] Descomentar o bloco `healthcheck` do serviço `server` em
       `compose.yml` (linhas 21-26 no arquivo atual)
-- [ ] Revisar/ajustar os valores de `interval`, `timeout`, `retries`,
+- [x] Revisar/ajustar os valores de `interval`, `timeout`, `retries`,
       `start_period` se necessário, justificando qualquer mudança em
-      relação ao valor comentado original
-- [ ] Confirmar que o comando do healthcheck usa a porta interna correta
+      relação ao valor comentado original — **nenhum ajuste necessário**,
+      valores comentados originais mantidos (`10s`/`5s`/`3`/`5s`).
+- [x] Confirmar que o comando do healthcheck usa a porta interna correta
       (`8080`, conforme `EXPOSE 8080` do `Dockerfile`) e o caminho
       `/api/versao`
-- [ ] Subir o ambiente local (`docker compose up -d --build`)
-- [ ] Confirmar via `docker ps` que o container `server` (nome `bia`)
+- [x] Subir o ambiente local (`docker compose up -d --build`)
+- [x] Confirmar via `docker ps` que o container `server` (nome `bia`)
       aparece como `healthy`
-- [ ] Rebuild completo dos containers (`docker compose down` → `build` →
+- [x] Rebuild completo dos containers (`docker compose down` → `build` →
       `up`) e confirmação de que `/api/versao` responde (regra padrão do
       dev)
-- [ ] Notificar o **qa** para validação dos dois cenários
+- [x] Notificar o **qa** para validação dos dois cenários
+
+> **Nota para o qa (achado de ambiente, não relacionado ao código):**
+> Nesta máquina/WSL existe um container `my-postgres` (não pertence ao
+> projeto BIA, network `postgressql_my-network-sql`) que já ocupa a
+> porta host `5433` continuamente. Isso gera conflito de porta com o
+> serviço `database` deste projeto (`ports: - 5433:5432`), impedindo o
+> `docker compose up` "puro" de subir o container `database` enquanto
+> `my-postgres` estiver rodando — **esse conflito é pré-existente e não
+> foi introduzido por esta task** (a porta 5433 já estava mapeada assim
+> antes da mudança; `git diff compose.yml` mostra alteração restrita ao
+> bloco `healthcheck`).
+> Para validar, foi usado um `compose.override.yml` **local e não
+> versionado** (removido ao final) apenas remapeando a porta host do
+> `database` (ex.: `5555:5432`) via `docker compose -f compose.yml -f
+> compose.override.yml up -d --build`. O qa pode usar a mesma estratégia
+> se `my-postgres` ainda estiver ocupando a 5433, ou parar
+> temporariamente esse container manualmente (fora do escopo desta
+> task).
 
 ### Validação (qa)
 - [ ] Confirmar via `docker ps` que `server` está `healthy` após subir o
@@ -193,10 +220,11 @@ o processo do container ainda existe.
       task
 
 ### Finalização
-- [ ] Código revisado
-- [ ] Commits finalizados com mensagens descritivas
-- [ ] Push do branch realizado
-- [ ] Todos os itens acima marcados ✅
+- [x] Código revisado
+- [x] Commits finalizados com mensagens descritivas
+- [x] Push do branch realizado
+- [ ] Todos os itens acima marcados ✅ (pendente: validação qa e consulta
+      devops)
 
 ---
 
