@@ -102,12 +102,14 @@ mover esse arquivo para uma pasta na mesma folder acima, chamado done/
       git commit -m "move: task XXX para done"
       git push origin ia-main
       ```
-    - **ANTES de abrir o PR, entrar no worktree da feature:**
+    - **ANTES de abrir o PR, entrar no worktree da feature e confirmar o branch:**
       ```bash
       cd .kiro/worktrees/XXX-tipo-resumo
-      git branch --show-current  # Confirmar que está em feature/XXX-tipo-resumo
+      git branch --show-current
       ```
-    - Abrir Pull Request do branch da feature contra o branch `ia-main`:
+      - Comparar a saída com o nome esperado (`feature/XXX-tipo-resumo`, igual ao nome da task).
+      - Se a saída for `ia-main` ou qualquer outro valor diferente do esperado, **PARAR** — NÃO rodar `gh pr create`. Investigar antes de prosseguir (ex.: pode estar na raiz do projeto em vez do worktree).
+    - Só então abrir o Pull Request do branch da feature contra o branch `ia-main`:
       ```bash
       gh pr create --base ia-main --title "XXX: <resumo>" --body "Closes task XXX"
       ```
@@ -245,12 +247,13 @@ git push origin ia-main
 
 ### 3. Abrir Pull Request
 ```bash
-# ANTES de abrir PR: confirmar que está no branch da feature
+# ANTES de abrir PR: confirmar que está no branch da feature (NUNCA em ia-main)
 cd .kiro/worktrees/XXX-tipo-resumo
 git branch --show-current
-# Deve mostrar: feature/XXX-tipo-resumo
+# Comparar a saída com o nome esperado: feature/XXX-tipo-resumo (mesmo nome da task)
+# Se não bater (ex.: mostrar "ia-main"), PARAR — NÃO rodar o gh pr create abaixo
 
-# Abrir PR contra ia-main
+# Só prosseguir se o branch confirmado bater com o esperado:
 gh pr create --base ia-main --title "XXX: [Resumo]" --body "Closes task XXX"
 ```
 

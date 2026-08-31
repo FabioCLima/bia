@@ -176,12 +176,13 @@ git push origin ia-main
 
 **d) Abrir Pull Request**
 ```bash
-# ATENÇÃO: Antes de abrir PR, confirmar que está no branch da feature
+# ATENÇÃO: Antes de abrir PR, confirmar que está no branch da feature (NUNCA em ia-main)
 cd .kiro/worktrees/006-feat-nova-funcionalidade
 git branch --show-current
-# Deve mostrar: feature/006-feat-nova-funcionalidade
+# Comparar a saída com o nome esperado: feature/006-feat-nova-funcionalidade (mesmo nome da task)
+# Se não bater (ex.: mostrar "ia-main"), PARAR — NÃO rodar o gh pr create abaixo
 
-# Abrir PR contra ia-main
+# Só prosseguir se o branch confirmado bater com o esperado:
 gh pr create --base ia-main --title "006: Nova funcionalidade" --body "Closes task 006"
 ```
 

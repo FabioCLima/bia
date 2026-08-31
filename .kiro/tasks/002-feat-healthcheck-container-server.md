@@ -274,12 +274,13 @@ git push origin ia-main
 
 ### 3. Abrir Pull Request
 ```bash
-# ANTES de abrir PR: confirmar que está no branch da feature
+# ANTES de abrir PR: confirmar que está no branch da feature (NUNCA em ia-main)
 cd .kiro/worktrees/002-feat-healthcheck-container-server
 git branch --show-current
-# Deve mostrar: feature/002-feat-healthcheck-container-server
+# Comparar a saída com o nome esperado: feature/002-feat-healthcheck-container-server (mesmo nome da task)
+# Se não bater (ex.: mostrar "ia-main"), PARAR — NÃO rodar o gh pr create abaixo
 
-# Abrir PR contra ia-main
+# Só prosseguir se o branch confirmado bater com o esperado:
 gh pr create --base ia-main --title "002: Ativar healthcheck do container server no compose.yml" --body "Closes task 002"
 ```
 

@@ -123,12 +123,13 @@ git push origin ia-main
 
 #### 3. Abertura de Pull Request
 ```bash
-# ANTES de abrir PR: confirmar que está no branch da feature
+# ANTES de abrir PR: confirmar que está no branch da feature (NUNCA em ia-main)
 cd .kiro/worktrees/<nome-da-task>
 git branch --show-current
-# Deve mostrar: feature/<número>-<tipo>-<resumo>
+# Comparar a saída com o nome esperado: feature/<número>-<tipo>-<resumo> (mesmo nome da task)
+# Se não bater (ex.: mostrar "ia-main"), PARAR — NÃO rodar o gh pr create abaixo
 
-# Abrir PR contra ia-main
+# Só prosseguir se o branch confirmado bater com o esperado:
 gh pr create --base ia-main --title "<número>: <resumo>" --body "Closes task <número>"
 
 # Exemplo:
