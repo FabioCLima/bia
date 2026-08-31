@@ -119,11 +119,15 @@ o processo do container ainda existe.
       é sobre o ambiente local).
 
 ## 🧪 Testes (qa)
-- [ ] **Cenário 1 — Healthy:** Subir o ambiente
+- [x] **Cenário 1 — Healthy:** Subir o ambiente
       (`docker compose up -d --build`) e, via `docker ps`, confirmar que o
       container `server` (nome `bia`) atinge o status `healthy` (não
       apenas `Up`).
-- [ ] **Cenário 2 — Caminho de falha (banco indisponível):** Parar o
+      **Resultado:** `bia   Up 11 minutes (healthy)`. `docker inspect
+      --format='{{json .State.Health}}' bia` → `"Status":"healthy"`,
+      `"FailingStreak":0`, todos os ciclos com `ExitCode:0` e saída
+      `Bia 4.2.0`.
+- [x] **Cenário 2 — Caminho de falha (banco indisponível):** Parar o
       container do banco (`docker stop database`) e observar, via
       `docker ps` / `docker inspect --format='{{json .State.Health}}' bia`,
       o que acontece com o status do container `server` ao longo de
@@ -133,8 +137,17 @@ o processo do container ainda existe.
     "unhealthy"**, dado o comportamento atual do endpoint `/api/versao`.
     O qa deve **documentar o resultado real observado**, não forçar um
     resultado específico.
-  - [ ] Religar o banco (`docker start database`) ao final do teste e
+    **Resultado real observado:** com `database` parado, o container
+    `server` **permaneceu `healthy`** ao longo de 5 ciclos consecutivos
+    (~50s, `interval: 10s`), todos com `ExitCode:0` e saída `Bia 4.2.0`
+    — confirma exatamente o comportamento previsto na nota técnica, já
+    que `/api/versao` não consulta o banco. Nenhuma transição para
+    `unhealthy` ocorreu.
+  - [x] Religar o banco (`docker start database`) ao final do teste e
         confirmar que o ambiente volta ao estado normal.
+        **Resultado:** `docker start database` → `database   Up 5
+        seconds`, `bia` seguiu `healthy` durante toda a interrupção e
+        depois dela, sem qualquer degradação.
 
 ## 📚 Definição de Pronto (DoD)
 - [ ] Código implementado e testado (bloco `healthcheck` ativo em
@@ -145,7 +158,7 @@ o processo do container ainda existe.
 - [ ] Rebuild dos containers realizado (`docker compose down` → `build`
       → `up`) e `/api/versao` respondendo, conforme
       `.kiro/agents/dev/instrucoes.md`
-- [ ] QA validou os dois cenários (healthy e caminho de falha) e
+- [x] QA validou os dois cenários (healthy e caminho de falha) e
       registrou o resultado observado
 - [ ] Devops registrou a comparação com o ECS de produção (achado +
       recomendação), de forma somente leitura
@@ -195,16 +208,27 @@ o processo do container ainda existe.
 > task).
 
 ### Validação (qa)
-- [ ] Confirmar via `docker ps` que `server` está `healthy` após subir o
+- [x] Confirmar via `docker ps` que `server` está `healthy` após subir o
       ambiente (Cenário 1)
-- [ ] Rodar o Cenário 2 (parar `database`, observar `server` via
+- [x] Rodar o Cenário 2 (parar `database`, observar `server` via
       `docker ps`/`docker inspect`) e **documentar o resultado real**
       (pode ser que o container continue `healthy`, dado que
       `/api/versao` não depende do banco — ver Notas Técnicas)
-- [ ] Religar o `database` e confirmar retorno ao estado normal
-- [ ] Registrar evidências (saída de `docker ps`/`docker inspect`,
+- [x] Religar o `database` e confirmar retorno ao estado normal
+- [x] Registrar evidências (saída de `docker ps`/`docker inspect`,
       prints/logs) e notificar o **devops** para a etapa consultiva de
       comparação com produção
+
+> **Nota de execução:** o agente `qa` (acesso `fs_read` + Playwright, sem
+> Docker/Bash) validou via UI/HTTP que `/api/versao` responde `Bia 4.2.0`
+> e revisou o `compose.yml`/branch, mas não tem ferramentas para rodar
+> `docker ps`/`docker inspect`/`docker stop`. Os comandos Docker dos dois
+> cenários acima (evidências registradas nesta seção e na seção "🧪
+> Testes (qa)") foram executados pelo **po**, a pedido do usuário, para
+> fechar essa lacuna estrutural do agente qa. Achado do qa fora do
+> escopo desta task: `GET /api/tarefas` retorna 500 (`relation
+> "Tarefas" does not exist`) — banco local sem migrations aplicadas;
+> registrar como item de backlog futuro.
 
 ### Consulta (devops — somente leitura, antes do fechamento)
 - [ ] Consultar via `aws-mcp` a Task Definition/serviço ECS de produção
