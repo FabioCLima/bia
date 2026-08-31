@@ -4,6 +4,10 @@
 
 [>> Página de Inscrição do evento](https://org.imersaoaws.com.br/github/readme)
 
+### Documentação
+
+Consulte o [índice da documentação](./docs/README.md).
+
 #### Para rodar as migrations no container ####
 ```
 docker compose exec server bash -c 'npx sequelize db:migrate'
