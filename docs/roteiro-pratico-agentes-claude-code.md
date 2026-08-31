@@ -56,6 +56,38 @@ que decorar a sintaxe de uma CLI que pode ser rebatizada de novo no futuro.
 
 ---
 
+## ⚠️ Correção: o assistente `/agents` foi removido
+
+Nos Módulos 3, 5 e 8 abaixo, o checkpoint original pedia pra rodar `/agents`
+e conferir o subagente numa lista. Isso não existe mais — versões recentes
+do Claude Code (confirmado na v2.1.251) removeram esse assistente
+interativo. Rodar `/agents` agora só devolve isto:
+
+```
+The /agents wizard has been removed.
+
+Ask Claude to create or update subagents for you (e.g. "create a code-reviewer subagent that ..."),
+or edit the files directly:
+  • .claude/agents/       (this project)
+  • ~/.claude/agents/     (all projects)
+```
+
+**Não é erro — o mecanismo de subagente (arquivo `.md` em `.claude/agents/`)
+continua idêntico.** Só mudou *como você confirma* que ele foi carregado.
+Troque o passo "rode `/agents`" de qualquer módulo abaixo por um destes dois:
+
+1. **Perguntar direto:** `"quais subagentes existem nesse projeto?"` — o
+   Claude Code lê `.claude/agents/*.md` na hora e responde.
+2. **Invocar de vez:** `"Use o subagente <nome>: como você pode me ajudar?"`
+   — se o arquivo estiver certo, ele já responde com a persona certa; se não
+   existir, o Claude avisa que não achou esse subagente.
+
+A mensagem também revela um atalho que vale usar: dá pra **pedir pro Claude
+criar o arquivo do subagente pra você**, em vez de copiar/colar manualmente
+os blocos deste roteiro — ele escreve o `.md` sozinho, no formato certo.
+
+---
+
 ## 📖 Glossário mínimo (leia antes do Módulo 1)
 
 Se algum desses termos aparecer nas aulas e ainda não estiver 100% claro:
@@ -252,15 +284,57 @@ habilidade independente de qualquer agente.
 ## Módulo 5 — Criando o agente PO
 
 **🎯 Objetivo:** replicar a aula 03 ("Especificação dos agentes + contexto
-do PO").
+do PO") — e entender, campo a campo, o que muda quando o `po` deixa de ser
+um JSON do Kiro e vira um `.md` do Claude Code.
+
+**📖 Conceito — o "container" mudou de formato:** no Kiro, um agente é um
+arquivo JSON com campos técnicos separados: `tools`, `allowedTools`,
+`permissions.rules`, `toolsSettings`. No Claude Code, um agente é **um único
+Markdown**: um cabeçalho YAML curto (o "frontmatter", entre `---`) seguido
+do prompt em texto corrido. É a diferença entre um `config.yaml` de pipeline
+com várias seções tipadas e um notebook com uma célula de metadata no topo e
+o resto em texto — mesmo conteúdo, forma mais enxuta.
+
+O `.kiro/agents/po.json` real deste projeto tem **quatro campos** cuidando
+só de permissão (`tools`, `allowedTools`, `toolsSettings`, `permissions.rules`).
+No `po.md` do Claude Code, isso tudo colapsa num campo só, `tools:`, sem a
+granularidade fina de comando-a-comando ou pasta-a-pasta que o Kiro tinha:
+
+| No `po.json` | Vira o quê no `po.md` | O que se perde na tradução |
+|---|---|---|
+| `name` | `name:` no frontmatter | nada |
+| `description` | `description:` no frontmatter | ganha um uso novo: é o texto que o Claude usa pra decidir **sozinho** quando chamar esse subagente |
+| `prompt` | corpo do `.md`, após o frontmatter | nada — só troca de campo JSON pra texto solto |
+| `model` | `model: sonnet` no frontmatter | nada |
+| `tools` + `allowedTools` + `toolsSettings` + `permissions.rules` (4 campos) | **um campo só**: `tools: Read, Write, Bash, Glob, Grep` | granularidade — vira tudo-ou-nada por categoria de ferramenta |
+| `resources` (carregado automático) | não existe campo equivalente | vira instrução no prompt: "antes de agir, leia X, Y, Z" |
+| `mcpServers` | nada — fica de fora | resolvido pelo `.mcp.json` do projeto, compartilhado por todos os agentes |
+
+**A diferença prática que mais importa:** o `po.json` tem
+`toolsSettings.write.allowedPaths: [".kiro/**"]` e
+`toolsSettings.shell.allowedCommands: [...]` com `denyByDefault: true` — ou
+seja, o **sistema** do Kiro barra tecnicamente qualquer escrita fora de
+`.kiro/` e qualquer comando de shell fora da lista branca. No Claude Code,
+`tools: Bash` é tudo-ou-nada: não existe campo pra dizer "pode `git commit`,
+não pode `npm install`". Essa regra só sobrevive se você **escrever no
+prompt** — "seu uso do Bash deve se limitar a `git add`, `git commit`...".
+É uma trava que virou pedido: o modelo segue por instrução (*soft*), não
+porque a ferramenta foi tecnicamente removida (*hard*, como acontece com
+`Write`/`Edit`/`Bash` no `devops` e no `qa`, que nem aparecem no `tools:`
+deles).
 
 **🛠️ Passo a passo:**
 
-1. Crie `.claude/agents/po.md` (bloco da seção 4 do documento anterior).
+1. Crie `.claude/agents/po.md` (bloco da seção 4 de
+   `docs/migrar-time-agentes-para-claude-code.md` — ele já traduz o
+   `po.json` real, incluindo a lista de comandos de shell permitidos e a
+   restrição de escrita em `.kiro/**`).
 2. Teste, igual ao print do curso (página 6 do PDF):
    ```
    Use o subagente po: como você pode me ajudar?
    ```
+   (ver a correção logo acima — não use mais `/agents` pra confirmar que ele
+   foi carregado; pergunte direto ou invoque, como descrito ali.)
 
 **✅ Checkpoint:** a resposta deve mencionar: gestão de tarefas em
 `.kiro/tasks/`, formato `[seq]-[tipo]-[resumo].md`, `sequencial.md`, e que
@@ -268,11 +342,16 @@ ele **não escreve código de aplicação**.
 
 **✍️ Exercício de fixação:**
 Abra `.kiro/tasks/sequencial.md` e confira manualmente qual é o próximo
-número de task (hoje: `009`). Depois pergunte ao subagente `po` "qual vai
-ser o número da próxima task?" — a resposta dele deve bater com o que você
-leu. Se não bater, é sinal de que ele não seguiu a instrução de ler
-`sequencial.md` antes de responder — volte no prompt do `po.md` e reforce
-essa instrução.
+número de task. Depois pergunte ao subagente `po` "qual vai ser o número da
+próxima task?" — a resposta dele deve bater com o que você leu. Se não
+bater, é sinal de que ele não seguiu a instrução de ler `sequencial.md`
+antes de responder — volte no prompt do `po.md` e reforce essa instrução.
+
+Em seguida, sem consultar nada, responda de memória: *"se eu pedisse pro
+`po` rodar `npm install`, o que aconteceria — ele recusaria por estar
+tecnicamente impedido, ou porque o prompt manda ele não fazer isso?"* (a
+resposta é a segunda opção — é soft, não hard; compare com o `devops` no
+Módulo 8, onde é a primeira opção).
 
 ---
 
