@@ -346,6 +346,26 @@ git commit -m "move: task 003 para done"
 git push origin ia-main
 ```
 
+> **⚠️ Nota de execução real:** o `git push origin ia-main` acima **foi
+> rejeitado** pelo próprio ruleset criado por esta task (`GH013:
+> Repository rule violations found ... Required status check "testes" is
+> expected`). Esse é um efeito colateral correto e esperado da proteção:
+> como `bypass_actors` está vazio (`current_user_can_bypass: "never"`), a
+> regra bloqueia **qualquer push direto** a `ia-main` — não só merges de
+> PR com check falho — incluindo os commits de rotina do PO (mover task
+> para `doing/`/`done/`). Isso não é um bug da configuração; é a
+> proteção funcionando como projetada, só que agora afeta também o
+> fluxo de housekeeping do PO, que historicamente empurrava direto para
+> `ia-main`. Adaptação aplicada nesta execução: o commit "move: task 003
+> para done" foi movido para dentro do próprio worktree/branch
+> `feature/003-feat-branch-protection-testes-obrigatorios` (em vez de um
+> push direto a `ia-main`), viajando junto no mesmo Pull Request. Fica
+> registrado aqui como ponto de atenção para o time: **a partir de agora,
+> toda alteração em `ia-main` — inclusive housekeeping de tasks —
+> precisa passar por PR**, e o fluxo documentado no `.kiro/agents/po/especificacao.md`
+> (que assume push direto do PO) deveria ser revisado/atualizado em uma
+> task futura para refletir essa nova realidade.
+
 ### 3. Abrir Pull Request
 ```bash
 # ANTES de abrir PR: confirmar que está no branch da feature (NUNCA em ia-main)
@@ -551,6 +571,28 @@ regra `required_status_checks` com o contexto `testes`.
   `tests/unit/controllers/versao.test.js` em `ia-main` nunca foi alterado
   (a quebra só existiu no branch descartável, e foi revertida antes do
   fechamento do PR).
+
+### Confirmação final do PO (encerramento)
+- `gh api repos/FabioCLima/bia/rulesets/21956121` (executado durante a
+  revisão de encerramento) confirma o ruleset ativo:
+  `"enforcement":"active"`, `"rules":[{"type":"required_status_checks",
+  "parameters":{"required_status_checks":[{"context":"testes"}], ...}}]`.
+- `gh pr view 4 --json state,title` confirma `"state":"CLOSED"` (PR
+  descartável não mergeado).
+- `git ls-remote --heads origin test/003-branch-protection-quebrado`
+  retornou vazio — branch descartável não deixou rastro remoto.
+- **Efeito colateral descoberto no encerramento:** `git push origin
+  ia-main` direto (o passo padrão de housekeeping do PO para mover a
+  task para `done/`) foi **rejeitado** pelo próprio ruleset (`GH013:
+  Required status check "testes" is expected`), pois
+  `bypass_actors` está vazio. Isso confirma, na prática, que a proteção é
+  ainda mais abrangente do que o escopo original da task (bloqueia
+  qualquer push direto, não só merges de PR com check falho) — um efeito
+  correto e desejável de segurança, mas que exige adaptar o processo de
+  housekeeping do time (ver nota na seção "🎯 ENCERRAMENTO PELO PO" acima).
+  Por isso, o encerramento desta task 003 (mover para `done/`) foi feito
+  dentro deste mesmo branch/PR de feature, em vez de um push direto a
+  `ia-main`.
 
 ### Referências úteis
 - Workflow existente: `.github/workflows/testes-pr.yml` (job "Testes
