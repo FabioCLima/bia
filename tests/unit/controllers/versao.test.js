@@ -17,7 +17,8 @@ describe('Versao Controller', () => {
     // Chama o método get do objeto controller
     get(req, res);
 
-    expect(res.send).toHaveBeenCalledWith('Bia 4.2.0');
+    // teste quebrado propositalmente (task 003 - validação de branch protection, será revertido)
+    expect(res.send).toHaveBeenCalledWith('valor-propositalmente-errado');
   });
 
   test('get deve retornar a string de resposta correta quando VERSAO_API não está definido', () => {
