@@ -31,12 +31,12 @@ Esta task será implementada em worktree isolado em
 
 Antes de começar a implementar, o agent (dev) deve:
 
-- [ ] **Verificar branch atual:** `git branch --show-current`
+- [x] **Verificar branch atual:** `git branch --show-current`
   - Se não estiver em `ia-main`, **PERGUNTAR** ao usuário se pode trocar
   - Aguardar autorização
   - Após autorização: `git checkout ia-main && git pull origin ia-main`
 
-- [ ] **Mover task para doing:**
+- [x] **Mover task para doing:**
   ```bash
   mv .kiro/tasks/002-feat-healthcheck-container-server.md .kiro/tasks/doing/
   git add .kiro/tasks/
@@ -44,7 +44,7 @@ Antes de começar a implementar, o agent (dev) deve:
   git push origin ia-main
   ```
 
-- [ ] **Criar worktree:**
+- [x] **Criar worktree:**
   ```bash
   git worktree add .kiro/worktrees/002-feat-healthcheck-container-server -b feature/002-feat-healthcheck-container-server ia-main
   cd .kiro/worktrees/002-feat-healthcheck-container-server
@@ -73,49 +73,64 @@ o processo do container ainda existe.
 ## ✅ Critérios de Aceitação
 
 ### Funcionalidades Principais
-- [ ] O bloco `healthcheck` do serviço `server` em `compose.yml` está
+- [x] O bloco `healthcheck` do serviço `server` em `compose.yml` está
       **ativo** (não comentado), usando `curl -f` contra
       `http://localhost:8080/api/versao` (porta interna do container,
       conforme `EXPOSE 8080` no `Dockerfile`).
-- [ ] Os parâmetros de `interval`, `timeout`, `retries` e `start_period`
+- [x] Os parâmetros de `interval`, `timeout`, `retries` e `start_period`
       estão definidos com valores adequados para um ambiente local de
       estudo (sugestão de partida, já presente comentada no arquivo:
       `interval: 10s`, `timeout: 5s`, `retries: 3`, `start_period: 5s`) —
       o dev pode ajustar esses valores se, na prática, o app demorar mais
       para subir, desde que justifique a mudança.
-- [ ] Ao subir o ambiente (`docker compose up`), o container `server`
+      **Resultado:** valores comentados mantidos sem alteração — na
+      prática o app ficou `healthy` no primeiro ciclo (~10s), então não
+      houve necessidade de ajuste.
+- [x] Ao subir o ambiente (`docker compose up`), o container `server`
       atinge o status **healthy** em `docker ps` dentro de um tempo
       razoável após o start.
+      **Evidência:** `docker ps` → `bia   Up 15 seconds (healthy)`, e
+      `docker inspect --format='{{json .State.Health}}' bia` → primeiro
+      ciclo já com `"Status":"healthy"`.
 
 ### Integração
-- [ ] Nenhuma alteração em `Dockerfile`, `api/` ou `client/` — mudança
-      restrita a `compose.yml`.
-- [ ] `/api/versao` continua respondendo normalmente após a mudança
+- [x] Nenhuma alteração em `Dockerfile`, `api/` ou `client/` — mudança
+      restrita a `compose.yml`. Confirmado via `git diff compose.yml`
+      (único arquivo modificado, apenas o bloco `healthcheck`).
+- [x] `/api/versao` continua respondendo normalmente após a mudança
       (checagem padrão de qualquer alteração de infraestrutura local do
-      projeto).
+      projeto). Confirmado: `curl -s http://localhost:3001/api/versao`
+      → `Bia 4.2.0`.
 
 ### Consultivo (devops, antes do fechamento pelo PO)
-- [ ] O **devops** confirma, via `aws-mcp` (somente leitura), se a Task
-      Definition / serviço ECS de produção (`service-bia` /
-      `service-bia-alb`, conforme `.kiro/rules/infraestrutura.md`) já
-      possui um `healthCheck` configurado no container.
-- [ ] Caso exista healthcheck em produção, o devops compara os parâmetros
-      (`interval`, `timeout`, `retries`, `startPeriod`/`start_period`,
-      comando) com os propostos nesta task e registra na task se fazem
-      sentido (compatíveis) ou se sugere algum ajuste — **sem aplicar
-      nenhuma mudança**, apenas registrando a recomendação para o dev
-      avaliar antes do fechamento.
-- [ ] Caso NÃO exista healthcheck configurado no ECS, o devops registra
-      esse achado (é uma informação relevante para um backlog futuro de
-      alinhar prod ↔ local, mas não bloqueia o fechamento desta task, que
-      é sobre o ambiente local).
+- [x] O **devops** confirmou, via `aws-mcp` (somente leitura), que o
+      serviço ECS ativo em produção é `service-bia` (sem ALB —
+      `loadBalancers: []`, `launchType: EC2`, cluster `cluster-bia`),
+      rodando `task-def-bia:2`. O container `bia` dessa Task Definition
+      **não possui `healthCheck` configurado** (campo ausente no
+      `DescribeTaskDefinition`).
+- [x] N/A — não há healthcheck em produção para comparar parâmetros.
+- [x] Achado registrado: ECS de produção (`task-def-bia`) não tem
+      `healthCheck` no container nem health check de ALB (não há ALB).
+      Recomendação de backlog futuro (não bloqueia esta task): caso o
+      time queira alinhar prod ↔ local, os valores já usados no
+      `compose.yml` (`interval: 10s`, `timeout: 5s`, `retries: 3`,
+      `start_period: 5s`) são compatíveis com os limites aceitos pelo
+      ECS `healthCheck` (interval 5–300s, timeout 2–60s, retries 1–10,
+      startPeriod 0–300s), adaptando apenas o formato do `test` para
+      `CMD-SHELL` (ex.: `["CMD-SHELL", "curl -f
+      http://localhost:8080/api/versao || exit 1"]`).
 
 ## 🧪 Testes (qa)
-- [ ] **Cenário 1 — Healthy:** Subir o ambiente
+- [x] **Cenário 1 — Healthy:** Subir o ambiente
       (`docker compose up -d --build`) e, via `docker ps`, confirmar que o
       container `server` (nome `bia`) atinge o status `healthy` (não
       apenas `Up`).
-- [ ] **Cenário 2 — Caminho de falha (banco indisponível):** Parar o
+      **Resultado:** `bia   Up 11 minutes (healthy)`. `docker inspect
+      --format='{{json .State.Health}}' bia` → `"Status":"healthy"`,
+      `"FailingStreak":0`, todos os ciclos com `ExitCode:0` e saída
+      `Bia 4.2.0`.
+- [x] **Cenário 2 — Caminho de falha (banco indisponível):** Parar o
       container do banco (`docker stop database`) e observar, via
       `docker ps` / `docker inspect --format='{{json .State.Health}}' bia`,
       o que acontece com o status do container `server` ao longo de
@@ -125,21 +140,30 @@ o processo do container ainda existe.
     "unhealthy"**, dado o comportamento atual do endpoint `/api/versao`.
     O qa deve **documentar o resultado real observado**, não forçar um
     resultado específico.
-  - [ ] Religar o banco (`docker start database`) ao final do teste e
+    **Resultado real observado:** com `database` parado, o container
+    `server` **permaneceu `healthy`** ao longo de 5 ciclos consecutivos
+    (~50s, `interval: 10s`), todos com `ExitCode:0` e saída `Bia 4.2.0`
+    — confirma exatamente o comportamento previsto na nota técnica, já
+    que `/api/versao` não consulta o banco. Nenhuma transição para
+    `unhealthy` ocorreu.
+  - [x] Religar o banco (`docker start database`) ao final do teste e
         confirmar que o ambiente volta ao estado normal.
+        **Resultado:** `docker start database` → `database   Up 5
+        seconds`, `bia` seguiu `healthy` durante toda a interrupção e
+        depois dela, sem qualquer degradação.
 
 ## 📚 Definição de Pronto (DoD)
-- [ ] Código implementado e testado (bloco `healthcheck` ativo em
+- [x] Código implementado e testado (bloco `healthcheck` ativo em
       `compose.yml`)
-- [ ] Todos os itens do checklist marcados ✅
-- [ ] Commits descritivos e frequentes
-- [ ] Push do branch realizado
-- [ ] Rebuild dos containers realizado (`docker compose down` → `build`
+- [x] Todos os itens do checklist marcados ✅
+- [x] Commits descritivos e frequentes
+- [x] Push do branch realizado
+- [x] Rebuild dos containers realizado (`docker compose down` → `build`
       → `up`) e `/api/versao` respondendo, conforme
       `.kiro/agents/dev/instrucoes.md`
-- [ ] QA validou os dois cenários (healthy e caminho de falha) e
+- [x] QA validou os dois cenários (healthy e caminho de falha) e
       registrou o resultado observado
-- [ ] Devops registrou a comparação com o ECS de produção (achado +
+- [x] Devops registrou a comparação com o ECS de produção (achado +
       recomendação), de forma somente leitura
 
 ---
@@ -147,56 +171,84 @@ o processo do container ainda existe.
 ## 🎯 CHECKLIST DE IMPLEMENTAÇÃO (MARCAR DURANTE O TRABALHO)
 
 ### Configuração
-- [ ] Worktree criado e branch correto confirmado
-- [ ] Ambiente de desenvolvimento configurado no worktree
+- [x] Worktree criado e branch correto confirmado
+- [x] Ambiente de desenvolvimento configurado no worktree
 
 ### Desenvolvimento (dev)
-- [ ] Descomentar o bloco `healthcheck` do serviço `server` em
+- [x] Descomentar o bloco `healthcheck` do serviço `server` em
       `compose.yml` (linhas 21-26 no arquivo atual)
-- [ ] Revisar/ajustar os valores de `interval`, `timeout`, `retries`,
+- [x] Revisar/ajustar os valores de `interval`, `timeout`, `retries`,
       `start_period` se necessário, justificando qualquer mudança em
-      relação ao valor comentado original
-- [ ] Confirmar que o comando do healthcheck usa a porta interna correta
+      relação ao valor comentado original — **nenhum ajuste necessário**,
+      valores comentados originais mantidos (`10s`/`5s`/`3`/`5s`).
+- [x] Confirmar que o comando do healthcheck usa a porta interna correta
       (`8080`, conforme `EXPOSE 8080` do `Dockerfile`) e o caminho
       `/api/versao`
-- [ ] Subir o ambiente local (`docker compose up -d --build`)
-- [ ] Confirmar via `docker ps` que o container `server` (nome `bia`)
+- [x] Subir o ambiente local (`docker compose up -d --build`)
+- [x] Confirmar via `docker ps` que o container `server` (nome `bia`)
       aparece como `healthy`
-- [ ] Rebuild completo dos containers (`docker compose down` → `build` →
+- [x] Rebuild completo dos containers (`docker compose down` → `build` →
       `up`) e confirmação de que `/api/versao` responde (regra padrão do
       dev)
-- [ ] Notificar o **qa** para validação dos dois cenários
+- [x] Notificar o **qa** para validação dos dois cenários
+
+> **Nota para o qa (achado de ambiente, não relacionado ao código):**
+> Nesta máquina/WSL existe um container `my-postgres` (não pertence ao
+> projeto BIA, network `postgressql_my-network-sql`) que já ocupa a
+> porta host `5433` continuamente. Isso gera conflito de porta com o
+> serviço `database` deste projeto (`ports: - 5433:5432`), impedindo o
+> `docker compose up` "puro" de subir o container `database` enquanto
+> `my-postgres` estiver rodando — **esse conflito é pré-existente e não
+> foi introduzido por esta task** (a porta 5433 já estava mapeada assim
+> antes da mudança; `git diff compose.yml` mostra alteração restrita ao
+> bloco `healthcheck`).
+> Para validar, foi usado um `compose.override.yml` **local e não
+> versionado** (removido ao final) apenas remapeando a porta host do
+> `database` (ex.: `5555:5432`) via `docker compose -f compose.yml -f
+> compose.override.yml up -d --build`. O qa pode usar a mesma estratégia
+> se `my-postgres` ainda estiver ocupando a 5433, ou parar
+> temporariamente esse container manualmente (fora do escopo desta
+> task).
 
 ### Validação (qa)
-- [ ] Confirmar via `docker ps` que `server` está `healthy` após subir o
+- [x] Confirmar via `docker ps` que `server` está `healthy` após subir o
       ambiente (Cenário 1)
-- [ ] Rodar o Cenário 2 (parar `database`, observar `server` via
+- [x] Rodar o Cenário 2 (parar `database`, observar `server` via
       `docker ps`/`docker inspect`) e **documentar o resultado real**
       (pode ser que o container continue `healthy`, dado que
       `/api/versao` não depende do banco — ver Notas Técnicas)
-- [ ] Religar o `database` e confirmar retorno ao estado normal
-- [ ] Registrar evidências (saída de `docker ps`/`docker inspect`,
+- [x] Religar o `database` e confirmar retorno ao estado normal
+- [x] Registrar evidências (saída de `docker ps`/`docker inspect`,
       prints/logs) e notificar o **devops** para a etapa consultiva de
       comparação com produção
 
+> **Nota de execução:** o agente `qa` (acesso `fs_read` + Playwright, sem
+> Docker/Bash) validou via UI/HTTP que `/api/versao` responde `Bia 4.2.0`
+> e revisou o `compose.yml`/branch, mas não tem ferramentas para rodar
+> `docker ps`/`docker inspect`/`docker stop`. Os comandos Docker dos dois
+> cenários acima (evidências registradas nesta seção e na seção "🧪
+> Testes (qa)") foram executados pelo **po**, a pedido do usuário, para
+> fechar essa lacuna estrutural do agente qa. Achado do qa fora do
+> escopo desta task: `GET /api/tarefas` retorna 500 (`relation
+> "Tarefas" does not exist`) — banco local sem migrations aplicadas;
+> registrar como item de backlog futuro.
+
 ### Consulta (devops — somente leitura, antes do fechamento)
-- [ ] Consultar via `aws-mcp` a Task Definition/serviço ECS de produção
-      referente ao projeto BIA (ver nomes em
-      `.kiro/rules/infraestrutura.md`) e verificar se há `healthCheck`
-      configurado no container
-- [ ] Se existir, comparar `interval`/`timeout`/`retries`/`startPeriod`
-      com os valores implementados nesta task e registrar na task se são
-      compatíveis/fazem sentido, ou se recomenda algum ajuste
-- [ ] Se não existir, registrar esse achado como observação (sem
-      bloquear a task)
-- [ ] Notificar o **PO** com o resultado da consulta, para fechamento da
-      task
+- [x] Consultado via `aws-mcp`: cluster `cluster-bia`, serviço
+      `service-bia` (sem ALB), task definition `task-def-bia:2`.
+      Container `bia` **sem** `healthCheck` configurado.
+- [x] N/A — não há healthcheck em produção para comparar.
+- [x] Achado registrado como observação de backlog (não bloqueia): ECS
+      sem healthcheck nativo; sugestão de parâmetros compatíveis
+      documentada acima, para avaliação futura do time (fora do escopo
+      desta task).
+- [x] PO notificado.
 
 ### Finalização
-- [ ] Código revisado
-- [ ] Commits finalizados com mensagens descritivas
-- [ ] Push do branch realizado
-- [ ] Todos os itens acima marcados ✅
+- [x] Código revisado
+- [x] Commits finalizados com mensagens descritivas
+- [x] Push do branch realizado
+- [x] Todos os itens acima marcados ✅
 
 ---
 
