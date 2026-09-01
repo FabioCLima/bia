@@ -61,4 +61,9 @@ scripts/ec2_agendamento.log
 # Metadado do Windows (NTFS zone identifier) que vem junto de arquivos
 # baixados pelo navegador e acaba aparecendo em pastas montadas do WSL
 *:Zone.Identifier
+
+# Metadado de personalização de pasta que o Explorer/OneDrive cria
+# sozinho ao navegar em docs/ pelo link simbólico bia-docs
+desktop.ini
+
 deploy-*.log
