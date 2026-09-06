@@ -2,6 +2,8 @@
 
 <div align="center">
 
+### Período do evento: 19/09 e 20/09/2026 (Online e ao Vivo das 9h30 às 17h30)
+
 ![Version](https://img.shields.io/badge/version-4.2.0-blue.svg)
 ![Node](https://img.shields.io/badge/node-18+-green.svg)
 ![React](https://img.shields.io/badge/react-18.3-61dafb.svg)

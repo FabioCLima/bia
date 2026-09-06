@@ -7,6 +7,7 @@ import Footer from "./components/Footer.jsx";
 import Tasks from "./components/Tasks.jsx";
 import AddTask from "./components/AddTask.jsx";
 import TaskCounter from "./components/TaskCounter.jsx";
+import Modal from "./components/Modal.jsx";
 import About from "./components/About.jsx";
 import Version from "./components/Version.jsx";
 import DebugLogs from "./components/DebugLogs.jsx";
@@ -19,6 +20,7 @@ function AppContent() {
   const [fromCache, setFromCache] = useState(false);
   const [cacheTTL, setCacheTTL] = useState(null);
   const [cacheError, setCacheError] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { logApiRequest, logApiResponse, logApiError, addLog } = useLog();
 
   // Definir getTasks ANTES do useEffect
@@ -190,6 +192,29 @@ function AppContent() {
     }
   };
 
+  //Remover todas as tarefas
+  const confirmDeleteAll = () => setShowConfirmModal(true);
+
+  const deleteAllTasks = async () => {
+    setShowConfirmModal(false);
+    const url = `${apiUrl}/api/tarefas`;
+    logApiRequest('DELETE', url);
+
+    try {
+      const res = await fetch(url, { method: "DELETE" });
+      logApiResponse('DELETE', url, res.status);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+
+      setTasks([]);
+      addLog('SUCCESS', 'Todas as tarefas removidas');
+      getTasks();
+    } catch (error) {
+      logApiError('DELETE', url, error);
+      addLog('ERROR', 'Falha ao excluir todas as tarefas', error.message);
+    }
+  };
+
   //Remover tarefa
   const deleteTask = async (uuid) => {
     const url = `${apiUrl}/api/tarefas/${uuid}`;
@@ -241,6 +266,7 @@ function AppContent() {
             <Tasks
               tasks={tasks}
               onDelete={deleteTask}
+              onDeleteAll={confirmDeleteAll}
               onToggle={toggleReminder}
               onToggleConcluida={toggleConcluida}
               fromCache={fromCache}
@@ -254,6 +280,14 @@ function AppContent() {
             <p>Adicione sua primeira tarefa usando o formulário acima!</p>
           </div>
         )}
+        <Modal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          onConfirm={deleteAllTasks}
+          title="Limpar tudo"
+          message="Tem certeza que deseja excluir todas as tarefas?"
+          type="warning"
+        />
       </>
     );
   };

@@ -67,3 +67,6 @@ scripts/ec2_agendamento.log
 desktop.ini
 
 deploy-*.log
+
+# mcp local
+.mcp.json
