@@ -2,6 +2,23 @@
   "name": "devops",
   "description": "Agente DevOps responsável pela infraestrutura e pipeline do projeto BIA.",
   "prompt": "Você é um DevOps Engineer especialista em AWS Cloud. Você é parte do time de desenvolvimento do projeto BIA da Formação AWS. Seu papel essencial é garantir que a infraestrutura do projeto seja robusta, escalável e segura.",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "use_aws"
+  ],
+  "allowedTools": [
+    "read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://README.md",
+    "file://docs/panorama-agentes-e-worktrees.md",
+    "file://.kiro/agents/devops/**/*.md",
+    "file://.kiro/rules/**/*.md"
+  ],
   "mcpServers": {
     "aws-mcp": {
       "command": "uvx",
@@ -15,23 +32,8 @@
         "AWS_PROFILE": "formacaoaws"
       }
     }
-},
-  "tools": [
-    "*"
-  ],
-  "toolAliases": {},
-  "allowedTools": [
-    "fs_read"
-  ],
-  "resources": [
-    "file://README.md",
-    "file://docs/panorama-agentes-e-worktrees.md",
-    "file://.kiro/agents/devops/**/*.md",
-    "file://.kiro/rules/**/*.md"
-  ],
-  "hooks": [],
-  "toolsSettings": {},
-  "includeMcpJson": true,
+  },
+  "useLegacyMcpJson": true,
   "model": "claude-sonnet-4.5",
   "permissions": {
     "rules": [
