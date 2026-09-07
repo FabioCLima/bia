@@ -110,7 +110,9 @@ export default function Analytics({ tasks = [] }) {
                     />
                     <ChartTooltip
                       cursor={{ fill: "hsl(var(--muted))" }}
-                      content={<ChartTooltipContent nameKey="priority" />}
+                      content={
+                        <ChartTooltipContent hideLabel nameKey="priority" />
+                      }
                     />
                     <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                       <LabelList
