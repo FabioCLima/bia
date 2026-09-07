@@ -60,12 +60,12 @@ Esta task será implementada em worktree isolado em
 
 Antes de começar a implementar, o agent deve:
 
-- [ ] **Verificar branch atual:** `git branch --show-current`
+- [x] **Verificar branch atual:** `git branch --show-current`
   - Se não estiver em `ia-main`, **PERGUNTAR** ao usuário se pode trocar
   - Aguardar autorização
   - Após autorização: `git checkout ia-main && git pull origin ia-main`
 
-- [ ] **Mover task para doing:**
+- [x] **Mover task para doing:**
   ```bash
   mv .kiro/tasks/005-feat-grafico-shadcn-tasks-por-prioridade.md .kiro/tasks/doing/
   git add .kiro/tasks/
@@ -73,7 +73,7 @@ Antes de começar a implementar, o agent deve:
   git push origin ia-main
   ```
 
-- [ ] **Criar worktree:**
+- [x] **Criar worktree:**
   ```bash
   git worktree add .kiro/worktrees/005-feat-grafico-shadcn-tasks-por-prioridade -b feature/005-feat-grafico-shadcn-tasks-por-prioridade ia-main
   cd .kiro/worktrees/005-feat-grafico-shadcn-tasks-por-prioridade
@@ -143,31 +143,31 @@ desta task (ver critério de aceitação e checklist de QA abaixo).
 ## ✅ Critérios de Aceitação
 
 ### Funcionalidades Principais
-- [ ] Verificado via MCP shadcn (`mcp__shadcn__*`) se o componente `chart` já
+- [x] Verificado via MCP shadcn (`mcp__shadcn__*`) se o componente `chart` já
       está instalado/atualizado em `client/src/components/ui/chart.jsx`
       (nesta revisão do PO, o arquivo já existia) — se precisar atualizar ou
       completar, usar `npx shadcn add chart` / MCP equivalente.
-- [ ] O gráfico de barras em `Analytics.jsx` reimplementado usando
+- [x] O gráfico de barras em `Analytics.jsx` reimplementado usando
       `ChartContainer` + `ChartTooltip`/`ChartTooltipContent` (+ `Bar`,
       `BarChart`, `XAxis`, `CartesianGrid` do Recharts, como usado pelos
       blocos de referência `chart-bar-*` do shadcn) no lugar de
       `ResponsiveContainer`/`Tooltip` crus e do `CustomTooltip` manual.
-- [ ] Um `ChartConfig` definido para as 2 categorias (`importante` /
+- [x] Um `ChartConfig` definido para as 2 categorias (`importante` /
       `normal`, ou nomes equivalentes), com `label` e `color` — reaproveitando
       as cores já usadas hoje (`COLORS.importantes` = `#f59e0b`,
       `COLORS.normais` = `#10b981`) ou os tokens de cor shadcn
       (`--chart-1`, `--chart-2`, etc.) se já existirem no tema do projeto —
       decisão do dev, desde que o contraste/identidade visual atual seja
       preservada.
-- [ ] O agrupamento de dados por prioridade continua sendo feito a partir do
+- [x] O agrupamento de dados por prioridade continua sendo feito a partir do
       campo `importante` (booleano) das tasks recebidas via prop — **sem
       nenhuma alteração em `api/`, models ou migrations**.
-- [ ] O gráfico continua mostrando o total de tasks e a contagem por
+- [x] O gráfico continua mostrando o total de tasks e a contagem por
       categoria (equivalente ao que já existe hoje no `CardDescription` e
       nos cards de estatística abaixo do gráfico) — esses cards de estatística
       (`analytics-stats-grid`) podem ser mantidos como estão (não usam
       Recharts, não fazem parte do escopo do chart em si).
-- [ ] **A Home (`/`) contém um link visível** levando até a tela do gráfico
+- [x] **A Home (`/`) contém um link visível** levando até a tela do gráfico
       (`/analytics`) — confirmar que o card "Ver Analytics" já existente em
       `App.jsx` continua presente, visível (sem ficar escondido/cortado por
       CSS) e navegável após a migração do gráfico. Se, ao testar a Home
@@ -175,57 +175,57 @@ desta task (ver critério de aceitação e checklist de QA abaixo).
       como parte desta task (não é opcional).
 
 ### Interface e UX
-- [ ] Tooltip ao passar o mouse/tocar em uma barra mostra a categoria e a
+- [x] Tooltip ao passar o mouse/tocar em uma barra mostra a categoria e a
       contagem, agora usando `ChartTooltipContent` do shadcn (estilo
       consistente com outros charts shadcn, se houver, e com o restante do
       design system).
-- [ ] Visual do gráfico consistente com o tema (incluindo **dark mode**) —
+- [x] Visual do gráfico consistente com o tema (incluindo **dark mode**) —
       cores e contraste adequados nos dois temas.
-- [ ] Estado vazio (`tasks.length === 0`) continua funcionando como hoje
+- [x] Estado vazio (`tasks.length === 0`) continua funcionando como hoje
       (sem gráfico, com a mensagem/CTA de "Nenhuma tarefa ainda").
-- [ ] Responsivo: gráfico continua ocupando 100% da largura do card e se
+- [x] Responsivo: gráfico continua ocupando 100% da largura do card e se
       comporta bem em telas estreitas (mobile), sem overflow ou quebra de
       layout.
-- [ ] Card/link "Ver Analytics" na Home permanece visualmente claro (ícone,
+- [x] Card/link "Ver Analytics" na Home permanece visualmente claro (ícone,
       texto e seta legíveis) em light e dark mode, e em telas estreitas.
 
 ### Integração
-- [ ] Nenhum arquivo dentro de `api/` é alterado nesta task.
-- [ ] A rota `/analytics` e a prop `tasks` recebida de `App.jsx` continuam
+- [x] Nenhum arquivo dentro de `api/` é alterado nesta task.
+- [x] A rota `/analytics` e a prop `tasks` recebida de `App.jsx` continuam
       funcionando exatamente como hoje (sem mudança de contrato de props do
       componente `Analytics`).
-- [ ] Testar com dados reais: criar/remover/marcar tasks como
+- [x] Testar com dados reais: criar/remover/marcar tasks como
       importantes na Home e confirmar que o gráfico em `/analytics` reflete
       a contagem correta (Importantes vs. Normais).
-- [ ] Navegar pela Home renderizada (não só ler o código-fonte), clicar no
+- [x] Navegar pela Home renderizada (não só ler o código-fonte), clicar no
       link/card "Ver Analytics" e confirmar que ele leva corretamente até
       `/analytics`.
 
 ## 🧪 Testes
-- [ ] Testar funcionalidade localmente (`docker compose up --build`, conforme regra do agent `dev`)
-- [ ] Validar cenário com tasks variadas (algumas importantes, algumas não) — gráfico exibe as
+- [x] Testar funcionalidade localmente (`docker compose up --build`, conforme regra do agent `dev`)
+- [x] Validar cenário com tasks variadas (algumas importantes, algumas não) — gráfico exibe as
       contagens corretas
-- [ ] Validar cenário de lista vazia (sem tasks) — estado vazio preservado
-- [ ] Validar tooltip ao passar o mouse sobre cada barra
-- [ ] Validar visual em light e dark mode
-- [ ] Validar responsividade (mobile/desktop)
-- [ ] Validar que o link "Ver Analytics" está visível na Home renderizada e
+- [x] Validar cenário de lista vazia (sem tasks) — estado vazio preservado
+- [x] Validar tooltip ao passar o mouse sobre cada barra
+- [x] Validar visual em light e dark mode
+- [x] Validar responsividade (mobile/desktop)
+- [x] Validar que o link "Ver Analytics" está visível na Home renderizada e
       leva até `/analytics`
 
 ## 📚 Definição de Pronto (DoD)
-- [ ] Código implementado e testado
+- [x] Código implementado e testado
 - [ ] Todos os itens do checklist marcados ✅
-- [ ] Commits descritivos e frequentes
-- [ ] Push do branch realizado
-- [ ] Código segue padrões do projeto (componentes shadcn em
+- [x] Commits descritivos e frequentes
+- [x] Push do branch realizado
+- [x] Código segue padrões do projeto (componentes shadcn em
       `client/src/components/ui/`, sem imports crus de `recharts` fora de
       `chart.jsx`)
-- [ ] Nenhuma alteração em `api/`
+- [x] Nenhuma alteração em `api/`
 - [ ] QA validou via Playwright que o gráfico aparece e reflete corretamente
       as contagens por prioridade (ver seção QA abaixo)
 - [ ] QA validou via Playwright que o link "Ver Analytics" está presente e
       funcional na Home renderizada
-- [ ] Rebuild dos containers realizado conforme regra do dev
+- [x] Rebuild dos containers realizado conforme regra do dev
       (`.kiro/agents/dev/instrucoes.md`) e `/api/versao` respondendo
 
 ---
@@ -233,50 +233,50 @@ desta task (ver critério de aceitação e checklist de QA abaixo).
 ## 🎯 CHECKLIST DE IMPLEMENTAÇÃO (MARCAR DURANTE O TRABALHO)
 
 ### Configuração
-- [ ] Worktree criado e branch correto confirmado
-- [ ] Ambiente de desenvolvimento configurado no worktree
-- [ ] Dependências instaladas (se necessário)
+- [x] Worktree criado e branch correto confirmado
+- [x] Ambiente de desenvolvimento configurado no worktree
+- [x] Dependências instaladas (se necessário)
 
 ### Desenvolvimento (dev)
-- [ ] Verificar via MCP shadcn se `client/src/components/ui/chart.jsx` já
+- [x] Verificar via MCP shadcn se `client/src/components/ui/chart.jsx` já
       cobre o necessário (`ChartContainer`, `ChartConfig`, `ChartTooltip`,
       `ChartTooltipContent`) frente ao bloco de referência `chart-bar-*`; se
       faltar algo, adicionar/atualizar via `npx shadcn add chart`
-- [ ] Definir o `ChartConfig` de 2 categorias (importante/normal) com
+- [x] Definir o `ChartConfig` de 2 categorias (importante/normal) com
       `label` e `color`
-- [ ] Reescrever a renderização do gráfico em `Analytics.jsx` usando
+- [x] Reescrever a renderização do gráfico em `Analytics.jsx` usando
       `ChartContainer` no lugar de `ResponsiveContainer`, e
       `ChartTooltip`/`ChartTooltipContent` no lugar do `CustomTooltip` manual
-- [ ] Remover (ou simplificar, se ainda fizer sentido) o `CustomBarLabel`
+- [x] Remover (ou simplificar, se ainda fizer sentido) o `CustomBarLabel`
       manual, avaliando se o padrão shadcn/Recharts já cobre a necessidade de
       exibir o valor sobre cada barra
-- [ ] Manter a lógica de agregação (`useMemo` com `filter` por `importante`)
+- [x] Manter a lógica de agregação (`useMemo` com `filter` por `importante`)
       sem alterações
-- [ ] Manter os cards de estatística (`analytics-stats-grid`) como estão,
+- [x] Manter os cards de estatística (`analytics-stats-grid`) como estão,
       apenas confirmando que continuam consistentes com os novos dados do
       gráfico
-- [ ] Confirmar (e corrigir se necessário) que o card/link "Ver Analytics"
+- [x] Confirmar (e corrigir se necessário) que o card/link "Ver Analytics"
       em `client/src/App.jsx` (~linhas 251-260) está presente, visível e
       navegável na Home renderizada — não só no código-fonte
-- [ ] Conferir que não sobrou nenhum import cru de `recharts` em
+- [x] Conferir que não sobrou nenhum import cru de `recharts` em
       `Analytics.jsx` fora do que já é reexportado/usado por `chart.jsx`
 - [ ] (Opcional, desejável) Atualizar `docs/grafico-tasks-por-prioridade.md`
       para refletir a nova implementação baseada em shadcn — não bloqueia o
       DoD, mas é uma boa prática deixar a nota de estudo atualizada
 
 ### Testes
-- [ ] Testes manuais realizados cobrindo os cenários da seção 🧪 Testes
-- [ ] Cenários de borda testados (lista vazia, só importantes, só normais)
-- [ ] Visual conferido em light e dark mode
-- [ ] Link "Ver Analytics" testado manualmente a partir da Home renderizada
+- [x] Testes manuais realizados cobrindo os cenários da seção 🧪 Testes
+- [x] Cenários de borda testados (lista vazia, só importantes, só normais)
+- [x] Visual conferido em light e dark mode
+- [x] Link "Ver Analytics" testado manualmente a partir da Home renderizada
 
 ### Finalização (dev)
-- [ ] Código revisado
-- [ ] Commits finalizados com mensagens descritivas
-- [ ] Push do branch realizado
-- [ ] Rebuild completo dos containers (`docker compose down` → `build` →
+- [x] Código revisado
+- [x] Commits finalizados com mensagens descritivas
+- [x] Push do branch realizado
+- [x] Rebuild completo dos containers (`docker compose down` → `build` →
       `up`) e confirmação de que `/api/versao` responde
-- [ ] Notificar o **qa** para validação via Playwright
+- [x] Notificar o **qa** para validação via Playwright
 
 ### Validação (qa)
 - [ ] Abrir a Home via Playwright e confirmar que o link/card "Ver
