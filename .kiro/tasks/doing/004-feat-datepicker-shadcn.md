@@ -17,12 +17,12 @@ Esta task será implementada em worktree isolado em `.kiro/worktrees/004-feat-da
 
 Antes de começar a implementar, o agent deve:
 
-- [ ] **Verificar branch atual:** `git branch --show-current`
+- [x] **Verificar branch atual:** `git branch --show-current`
   - Se não estiver em `ia-main`, **PERGUNTAR** ao usuário se pode trocar
   - Aguardar autorização
   - Após autorização: `git checkout ia-main && git pull origin ia-main`
 
-- [ ] **Mover task para doing:**
+- [x] **Mover task para doing:**
   ```bash
   mv .kiro/tasks/004-feat-datepicker-shadcn.md .kiro/tasks/doing/
   git add .kiro/tasks/
@@ -30,7 +30,7 @@ Antes de começar a implementar, o agent deve:
   git push origin ia-main
   ```
 
-- [ ] **Criar worktree:**
+- [x] **Criar worktree:**
   ```bash
   git worktree add .kiro/worktrees/004-feat-datepicker-shadcn -b feature/004-feat-datepicker-shadcn ia-main
   cd .kiro/worktrees/004-feat-datepicker-shadcn
@@ -77,83 +77,83 @@ mesmo formulário).
 ## ✅ Critérios de Aceitação
 
 ### Funcionalidades Principais
-- [ ] Componentes shadcn `calendar` e `popover` adicionados em `client/src/components/ui/` via MCP
+- [x] Componentes shadcn `calendar` e `popover` adicionados em `client/src/components/ui/` via MCP
       shadcn (checar antes se já existem — nesta revisão não existiam).
-- [ ] Campo "Data/Prazo" em `AddTask.jsx` reimplementado usando `Popover` + `Calendar` do shadcn/ui
+- [x] Campo "Data/Prazo" em `AddTask.jsx` reimplementado usando `Popover` + `Calendar` do shadcn/ui
       no lugar do `DatePicker` do `react-datepicker`.
-- [ ] Dependência `react-datepicker` removida do `client/package.json` (e do lockfile) e sem nenhum
+- [x] Dependência `react-datepicker` removida do `client/package.json` (e do lockfile) e sem nenhum
       `import` residual dela em qualquer arquivo do projeto.
-- [ ] Arquivo `client/src/styles/datepicker.css` (ou qualquer CSS exclusivo do react-datepicker)
+- [x] Arquivo `client/src/styles/datepicker.css` (ou qualquer CSS exclusivo do react-datepicker)
       removido; se houver import desse CSS em outro arquivo, remover também.
-- [ ] O valor da data continua sendo convertido/formatado como **string** (`dd/MM/yyyy`, pt-BR) antes
+- [x] O valor da data continua sendo convertido/formatado como **string** (`dd/MM/yyyy`, pt-BR) antes
       de ser enviado no payload da tarefa (`dia_atividade`) — mesmo contrato de dados que já existe
       hoje com `formatDateToString`. Nenhuma mudança de schema, migration ou tipo de dado no backend.
 
 ### Interface e UX
-- [ ] Clicar no campo/input de data abre o calendário (via `Popover`).
-- [ ] Navegação entre meses e anos funcional dentro do `Calendar`.
-- [ ] Selecionar uma data no calendário preenche o input no formato `dd/MM/yyyy` e fecha o popover.
-- [ ] Existe uma forma de limpar a data selecionada, equivalente ao `isClearable` que existia na
+- [x] Clicar no campo/input de data abre o calendário (via `Popover`).
+- [x] Navegação entre meses e anos funcional dentro do `Calendar`.
+- [x] Selecionar uma data no calendário preenche o input no formato `dd/MM/yyyy` e fecha o popover.
+- [x] Existe uma forma de limpar a data selecionada, equivalente ao `isClearable` que existia na
       implementação anterior (ex.: botão "Limpar" dentro do popover ou ícone de limpar no input).
-- [ ] Visual do calendário/popover consistente com o tema (incluindo dark mode) usado nos demais
+- [x] Visual do calendário/popover consistente com o tema (incluindo dark mode) usado nos demais
       componentes shadcn do projeto.
 
 ### Integração
-- [ ] Criar uma tarefa nova selecionando uma data pelo novo componente e confirmar que ela é salva
+- [x] Criar uma tarefa nova selecionando uma data pelo novo componente e confirmar que ela é salva
       corretamente (via API) e exibida com a data certa na listagem de tarefas.
-- [ ] Tarefas já existentes (criadas antes desta mudança) continuam sendo exibidas e editadas
+- [x] Tarefas já existentes (criadas antes desta mudança) continuam sendo exibidas e editadas
       normalmente — nenhuma regressão no fluxo de listagem/edição por causa da troca do componente.
 
 ## 🧪 Testes
-- [ ] Testar funcionalidade localmente (`docker compose up --build`, conforme regra do agent `dev`)
-- [ ] Validar cenário de sucesso: criar tarefa com data selecionada via novo calendário
-- [ ] Validar cenário de "limpar data" e envio sem data preenchida
-- [ ] Validar responsividade do popover/calendário em telas menores
-- [ ] Validar visual em light e dark mode
+- [x] Testar funcionalidade localmente (`docker compose up --build`, conforme regra do agent `dev`)
+- [x] Validar cenário de sucesso: criar tarefa com data selecionada via novo calendário
+- [x] Validar cenário de "limpar data" e envio sem data preenchida
+- [x] Validar responsividade do popover/calendário em telas menores
+- [x] Validar visual em light e dark mode
 
 ## 📚 Definição de Pronto (DoD)
-- [ ] Código implementado e testado
-- [ ] Todos os itens do checklist marcados ✅
-- [ ] Commits descritivos e frequentes
-- [ ] Push do branch realizado
-- [ ] Código segue padrões do projeto (shadcn/ui, Tailwind, componentes em `client/src/components/ui/`)
-- [ ] Nenhuma referência residual a `react-datepicker` no código-fonte ou em `package.json`/lockfile
+- [x] Código implementado e testado
+- [x] Todos os itens do checklist marcados ✅
+- [x] Commits descritivos e frequentes
+- [x] Push do branch realizado
+- [x] Código segue padrões do projeto (shadcn/ui, Tailwind, componentes em `client/src/components/ui/`)
+- [x] Nenhuma referência residual a `react-datepicker` no código-fonte ou em `package.json`/lockfile
 
 ---
 
 ## 🎯 CHECKLIST DE IMPLEMENTAÇÃO (MARCAR DURANTE O TRABALHO)
 
 ### Configuração
-- [ ] Worktree criado e branch correto confirmado
-- [ ] Ambiente de desenvolvimento configurado no worktree
-- [ ] Dependências instaladas (se necessário)
+- [x] Worktree criado e branch correto confirmado
+- [x] Ambiente de desenvolvimento configurado no worktree
+- [x] Dependências instaladas (se necessário)
 
 ### Desenvolvimento
-- [ ] Verificar via MCP shadcn se `calendar` e `popover` já existem em `client/src/components/ui/`;
+- [x] Verificar via MCP shadcn se `calendar` e `popover` já existem em `client/src/components/ui/`;
       se não, adicioná-los
-- [ ] Reimplementar o campo Data/Prazo em `client/src/components/AddTask.jsx` usando
+- [x] Reimplementar o campo Data/Prazo em `client/src/components/AddTask.jsx` usando
       `Popover` + `Calendar` do shadcn/ui, mantendo locale pt-BR e formato `dd/MM/yyyy`
-- [ ] Manter a conversão da data para string (`dia_atividade`) antes de enviar para a API — sem
+- [x] Manter a conversão da data para string (`dia_atividade`) antes de enviar para a API — sem
       alterar payload, backend, models ou migrations
-- [ ] Implementar opção de limpar a data selecionada (equivalente ao `isClearable` anterior)
-- [ ] Remover import e uso de `react-datepicker` e `date-fns/locale/pt-BR` (se exclusivo desse uso)
+- [x] Implementar opção de limpar a data selecionada (equivalente ao `isClearable` anterior)
+- [x] Remover import e uso de `react-datepicker` e `date-fns/locale/pt-BR` (se exclusivo desse uso)
       em `AddTask.jsx`
-- [ ] Remover dependência `react-datepicker` de `client/package.json` (e lockfile)
-- [ ] Remover `client/src/styles/datepicker.css` e qualquer import desse arquivo
-- [ ] Conferir se não sobrou nenhuma outra referência a `react-datepicker` no repositório
+- [x] Remover dependência `react-datepicker` de `client/package.json` (e lockfile)
+- [x] Remover `client/src/styles/datepicker.css` e qualquer import desse arquivo
+- [x] Conferir se não sobrou nenhuma outra referência a `react-datepicker` no repositório
       (`grep -r "react-datepicker" client/`)
 
 ### Testes
-- [ ] Testes manuais realizados (abrir calendário, navegar mês/ano, selecionar data, limpar data)
-- [ ] Cenário de criação de tarefa com data testado ponta a ponta (UI → API → listagem)
-- [ ] Cenário de erro/edge case testado (ex.: submeter sem selecionar data)
-- [ ] Visual conferido em dark mode
+- [x] Testes manuais realizados (abrir calendário, navegar mês/ano, selecionar data, limpar data)
+- [x] Cenário de criação de tarefa com data testado ponta a ponta (UI → API → listagem)
+- [x] Cenário de erro/edge case testado (ex.: submeter sem selecionar data)
+- [x] Visual conferido em dark mode
 
 ### Finalização
-- [ ] Código revisado
-- [ ] Commits finalizados com mensagens descritivas
-- [ ] Push do branch realizado
-- [ ] Todos os itens acima marcados ✅
+- [x] Código revisado
+- [x] Commits finalizados com mensagens descritivas
+- [x] Push do branch realizado
+- [x] Todos os itens acima marcados ✅
 
 ---
 
@@ -264,6 +264,25 @@ git branch -d feature/004-feat-datepicker-shadcn
 - O payload enviado para a API (`dia_atividade`) deve continuar como string, sem qualquer alteração
   em `api/controllers`, `api/models` ou `database/migrations`.
 - Escopo estritamente frontend (`client/`) — nenhuma alteração de backend.
+
+### Nota técnica adicional (achado durante a implementação)
+- O `client/src/index.css` usava diretivas legadas do Tailwind v3 (`@tailwind base/components/utilities`)
+  mesmo com `tailwindcss@4` instalado. Nesse modo, o Tailwind v4 não carregava o tema padrão completo
+  (faltavam utilities básicas como `rounded-md`, `shadow-sm`/`shadow-md`, `bg-popover`, `border-input`
+  etc.), o que já deixava os componentes shadcn existentes (`card.jsx`, `chart.jsx`) sem estilo real
+  (não percebido antes porque não estavam em uso visível). Isso quebrava a aceitação de "visual
+  consistente com o tema" do `Calendar`/`Popover` novos.
+- Corrigido substituindo as diretivas antigas por `@import "tailwindcss";` + `@config
+  "../tailwind.config.js";` em `client/src/index.css` (sintaxe de compatibilidade oficial do Tailwind
+  v4 para reaproveitar `tailwind.config.js` existente). Validado visualmente (light/dark) via
+  Playwright antes/depois do ajuste — screenshots comparativos confirmaram o antes (sem
+  radius/shadow/cores do tema) e depois (visual shadcn correto). Esse ajuste também beneficia
+  `card.jsx`/`chart.jsx` e qualquer componente shadcn futuro no projeto.
+- Também foram adicionados `client/components.json` e `client/jsconfig.json` (baseUrl "." com alias
+  `@/*`) para permitir o uso do CLI/MCP `shadcn` no projeto (não existiam antes). Os componentes
+  gerados (`calendar.jsx`, `popover.jsx`, `button.jsx` — este último é dependência do `calendar`) foram
+  ajustados para usar imports relativos (`../../lib/utils`, `./button`), seguindo o padrão já usado em
+  `card.jsx`/`chart.jsx` no projeto (ao invés do alias `@/...` gerado por padrão pelo CLI).
 
 ## 💼 Valor de Negócio
 **Médio** - Não é uma nova funcionalidade para o usuário final, mas reduz dívida técnica e
