@@ -497,4 +497,4 @@ Nenhuma. (Task independente; não depende de nenhuma outra task em andamento no 
 - Componente de chart shadcn já instalado: `client/src/components/ui/chart.jsx`
 - Link "Ver Analytics" na Home: `client/src/App.jsx` (~linhas 251-260)
 - Task de referência (mesmo racional de migração para shadcn/ui):
-  `.kiro/tasks/done/004-feat-datepicker-shadcn.md`
+  `.kiro/tasks/004-feat-datepicker-shadcn.md` (em andamento no momento da criação desta task)
