@@ -279,23 +279,38 @@ desta task (ver critério de aceitação e checklist de QA abaixo).
 - [x] Notificar o **qa** para validação via Playwright
 
 ### Validação (qa)
-- [ ] Abrir a Home via Playwright e confirmar que o link/card "Ver
+- [x] Abrir a Home via Playwright e confirmar que o link/card "Ver
       Analytics" está **visível na página renderizada** (não escondido por
       CSS/overflow) e que o clique nele navega até `/analytics`
-- [ ] Abrir `/analytics` via Playwright com tasks variadas e confirmar que o
+- [x] Abrir `/analytics` via Playwright com tasks variadas e confirmar que o
       gráfico exibe as contagens corretas (Importantes vs. Normais)
-- [ ] Validar tooltip ao interagir com as barras
-- [ ] Validar estado vazio (sem tasks)
-- [ ] Validar visual em light e dark mode (print de evidência)
-- [ ] Validar responsividade (mobile/desktop), incluindo a visibilidade do
+- [x] Validar tooltip ao interagir com as barras
+- [x] Validar estado vazio (sem tasks)
+- [x] Validar visual em light e dark mode (print de evidência)
+- [x] Validar responsividade (mobile/desktop), incluindo a visibilidade do
       link "Ver Analytics" na Home em telas estreitas
-- [ ] Registrar evidências (prints/logs do Playwright) e notificar o PO com
+- [x] Registrar evidências (prints/logs do Playwright) e notificar o PO com
       o resultado da validação
 
+**Nota (qa):** Validação end-to-end via Playwright contra o build real da
+branch `feature/005-feat-grafico-shadcn-tasks-por-prioridade` (container de
+teste isolado `bia-005-test`, porta 3002). Todos os cenários acima cobertos
+com sucesso. **Único ponto não-bloqueante encontrado:** o tooltip do gráfico
+mostra a categoria duplicada quando há série única — registrado como
+sugestão de polimento futuro, **não impede a aprovação** desta task.
+Evidências (prints) na raiz do repositório: `005-analytics-dark.png`,
+`005-analytics-light-data.png`, `005-analytics-mobile-dark.png`,
+`005-analytics-mobile-dark2.png`, `005-analytics-tooltip-dark.png`,
+`005-analytics-tooltip-light.png`, `005-home-mobile-dark.png`,
+`005-home-mobile-light.png`.
+
 ### Finalização (qa)
-- [ ] Todos os itens acima marcados ✅
-- [ ] Notificar o PO com o resultado da validação (aprovado ou apontando
+- [x] Todos os itens acima marcados ✅
+- [x] Notificar o PO com o resultado da validação (aprovado ou apontando
       ajustes necessários para o dev)
+
+**Resultado:** ✅ **Aprovado em QA** — validado ponta a ponta via Playwright
+contra o build real da branch, pronto para revisão de encerramento pelo PO.
 
 ---
 
