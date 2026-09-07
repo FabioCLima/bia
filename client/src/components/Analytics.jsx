@@ -1,15 +1,6 @@
 import React, { useMemo } from "react"
 import { Link } from "react-router-dom"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts"
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts"
 import {
   Card,
   CardContent,
@@ -17,53 +8,25 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart"
 
+// Mesmas cores usadas anteriormente na implementação com Recharts puro,
+// agora expostas via ChartConfig do shadcn/ui (gera as CSS vars --color-*
+// consumidas pelo ChartContainer, incluindo suporte nativo a dark mode).
 const COLORS = {
   importantes: "#f59e0b",
   normais: "#10b981",
 }
 
-// Tooltip customizado para o gráfico
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const item = payload[0]
-    return (
-      <div
-        style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border-color)",
-          borderRadius: "8px",
-          padding: "0.75rem 1rem",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <p style={{ color: "var(--text-primary)", fontWeight: 600, margin: 0 }}>
-          {item.payload.category}
-        </p>
-        <p style={{ color: item.payload.color, margin: "0.25rem 0 0" }}>
-          {item.value} {item.value === 1 ? "tarefa" : "tarefas"}
-        </p>
-      </div>
-    )
-  }
-  return null
-}
-
-// Label customizado para as barras
-const CustomBarLabel = ({ x, y, width, value }) => {
-  if (value === 0) return null
-  return (
-    <text
-      x={x + width / 2}
-      y={y - 6}
-      fill="var(--text-secondary)"
-      textAnchor="middle"
-      fontSize={13}
-      fontWeight={600}
-    >
-      {value}
-    </text>
-  )
+const chartConfig = {
+  importante: {
+    label: "⭐ Importantes",
+    color: COLORS.importantes,
+  },
+  normal: {
+    label: "📋 Normais",
+    color: COLORS.normais,
+  },
 }
 
 export default function Analytics({ tasks = [] }) {
@@ -80,13 +43,13 @@ export default function Analytics({ tasks = [] }) {
   const chartData = [
     {
       category: "⭐ Importantes",
+      priority: "importante",
       count: stats.importantesCount,
-      color: COLORS.importantes,
     },
     {
       category: "📋 Normais",
+      priority: "normal",
       count: stats.normaisCount,
-      color: COLORS.normais,
     },
   ]
 
@@ -129,38 +92,46 @@ export default function Analytics({ tasks = [] }) {
                 role="img"
                 aria-label={`Gráfico: ${stats.importantesCount} tarefas importantes e ${stats.normaisCount} tarefas normais`}
               >
-                <ResponsiveContainer width="100%" height={280}>
+                <ChartContainer
+                  config={chartConfig}
+                  className="aspect-auto h-[280px] w-full"
+                >
                   <BarChart
                     data={chartData}
                     margin={{ top: 20, right: 20, left: 0, bottom: 10 }}
                     barCategoryGap="35%"
                   >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--border-color)"
-                      vertical={false}
-                    />
+                    <CartesianGrid vertical={false} />
                     <XAxis
                       dataKey="category"
-                      tick={{ fill: "var(--text-secondary)", fontSize: 13 }}
-                      axisLine={{ stroke: "var(--border-color)" }}
                       tickLine={false}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
                       axisLine={false}
-                      tickLine={false}
-                      width={30}
+                      tickMargin={10}
                     />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0,0,0,0.05)" }} />
-                    <Bar dataKey="count" radius={[6, 6, 0, 0]} label={<CustomBarLabel />}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                    <ChartTooltip
+                      cursor={{ fill: "hsl(var(--muted))" }}
+                      content={
+                        <ChartTooltipContent hideLabel nameKey="priority" />
+                      }
+                    />
+                    <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                      <LabelList
+                        dataKey="count"
+                        position="top"
+                        offset={8}
+                        className="fill-foreground"
+                        fontSize={13}
+                        fontWeight={600}
+                      />
+                      {chartData.map((entry) => (
+                        <Cell
+                          key={entry.priority}
+                          fill={`var(--color-${entry.priority})`}
+                        />
                       ))}
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
 
               {/* Legenda visual */}
